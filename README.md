@@ -1,58 +1,86 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Portal UMKM Salamnunggal
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Portal digital untuk UMKM di Desa Salamnunggal. Sistem menyediakan penemuan UMKM untuk publik, manajemen profil dan produk oleh pemilik UMKM, serta verifikasi dan moderasi oleh Administrator.
 
-## About Laravel
+## Teknologi
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Laravel 11 (Blade-first, tanpa SPA)
+- Blade Components + Tailwind CSS + Vite
+- Spatie Laravel Permission untuk roles & permissions
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Peran
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Peran | Fungsi |
+| --- | --- |
+| Publik | Menjelajah dan mencari UMKM serta produk tanpa masuk akun |
+| Owner | Mendaftarkan, mengelola, dan mengirim UMKM beserta produknya untuk diverifikasi |
+| Administrator | Memverifikasi dan memoderasi pengajuan UMKM dan produk |
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalasi
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
+npm install && npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+`php artisan storage:link` membuat symlink `public/storage` ke `storage/app/public` agar media (logo, banner, galeri UMKM, foto produk) dapat diakses publik.
 
-## Contributing
+## Pengujian
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan test
+```
 
-## Code of Conduct
+## Demo Lokal
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Data demo bersifat fiktif (bukan data asli Salamnunggal) dan hanya dapat dijalankan di lingkungan lokal/testing:
 
-## Security Vulnerabilities
+```bash
+php artisan db:seed --class=DemoDataSeeder
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Seluruh akun demo menggunakan kata sandi `password`:
 
-## License
+| Akun | Email | Peran |
+| --- | --- | --- |
+| Demo Administrator | `administrator.demo@example.test` | Administrator |
+| Demo Owner | `owner.demo@example.test` | Owner (UMKM disetujui + produk) |
+| Demo Owner Pending | `owner.pending.demo@example.test` | Owner (UMKM menunggu pemeriksaan) |
+| Demo Owner Revisi | `owner.revision.demo@example.test` | Owner (UMKM perlu revisi) |
+| Demo Owner Ditolak | `owner.rejected.demo@example.test` | Owner (UMKM ditolak) |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Seeder aman dijalankan ulang (idempotent) tanpa perintah destruktif.
+
+## Deployment
+
+Checklist sebelum hosting:
+
+1. `cp .env.example .env`, set:
+   - `APP_ENV=production`
+   - `APP_DEBUG=false`
+   - `APP_URL=https://domain-anda`
+   - `APP_TIMEZONE=Asia/Jakarta`
+2. `php artisan key:generate`
+3. `php artisan migrate --force --seed` (roles, kategori, settings)
+4. `php artisan storage:link` (media logo/banner/galeri/foto produk)
+5. `npm install && npm run build` (aset produksi)
+6. Aktifkan `SESSION_SECURE_COOKIE=true` bila menggunakan HTTPS
+7. Jalankan `php artisan config:cache`, `php artisan route:cache`, `php artisan view:cache`
+8. Buat backup database rutin dan pantau log aplikasi
+
+## Fitur yang Belum Tersedia
+
+Fitur berikut terdokumentasi namun belum diimplementasikan dan sengaja tidak diklaim:
+
+- **Moderasi perubahan data approved**: pemilik belum dapat mengajukan perubahan UMKM/produk yang sudah disetujui.
+- **Verifikasi akun Owner**: akun baru langsung aktif (`users.status` belum ditegakkan).
+- **Kelola pengguna, kategori, dan settings** oleh Administrator: belum ada antarmuka admin.
+- **Email verification** terpasang namun belum diaktifkan pada route mana pun.
+
+## Lisensi
+
+Hak cipta dilindungi. Untuk keperluan部署 atau kontribusi, hubungi pengelola Desa Salamnunggal.

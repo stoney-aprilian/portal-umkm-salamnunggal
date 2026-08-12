@@ -1,9 +1,44 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
+@layer base {
+    body {
+        @apply bg-slate-50 font-sans text-slate-600 antialiased;
+    }
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply text-slate-900;
+    }
+
+    ::selection {
+        @apply bg-emerald-600 text-white;
+    }
+}
+
+@layer components {
+    .container-page {
+        @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    .section {
+        @apply py-16 sm:py-20;
+    }
+
+    .section-title {
+        @apply text-2xl font-semibold tracking-tight text-slate-900;
+    }
+
+    .card {
+        @apply rounded-2xl bg-white shadow-sm;
+    }
+
+    .card-hover {
+        @apply transition-shadow duration-300 hover:shadow-lg;
+    }
 }

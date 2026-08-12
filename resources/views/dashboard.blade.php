@@ -1,0 +1,417 @@
+<x-app-layout title="Dashboard">
+    <x-slot name="header">
+        <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+            <div class="min-w-0">
+                <h1 class="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+                    {{ __('Dashboard') }}
+                </h1>
+                <p class="mt-1 text-sm text-slate-600 sm:text-base">
+                    Selamat datang, {{ Auth::user()->name }}
+                </p>
+            </div>
+        </div>
+    </x-slot>
+
+    <div class="py-6 sm:py-8">
+        <div class="container-page">
+            @if (session('status'))
+                <x-alert type="success" class="mb-6">{{ session('status') }}</x-alert>
+            @endif
+
+            @if (session('error'))
+                <x-alert type="error" class="mb-6">{{ session('error') }}</x-alert>
+            @endif
+
+            @if ($umkm === null)
+                <div class="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+                    <div class="p-6 sm:p-8">
+                        <h2 class="text-xl font-semibold tracking-tight text-slate-900">{{ __('Mulai promosikan usaha Anda') }}</h2>
+                        <p class="mt-1 text-sm text-slate-600">
+                            Daftarkan UMKM Anda di Portal UMKM Salamnunggal agar mudah ditemukan masyarakat.
+                        </p>
+
+                        <ol class="mt-6 space-y-4">
+                            <li class="flex items-start gap-3">
+                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-700">1</span>
+                                <div>
+                                    <p class="text-sm font-medium text-slate-900">Daftarkan UMKM</p>
+                                    <p class="mt-0.5 text-sm text-slate-600">Lengkapi informasi usaha, alamat, dan kontak UMKM Anda.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-700">2</span>
+                                <div>
+                                    <p class="text-sm font-medium text-slate-900">Tunggu Pemeriksaan</p>
+                                    <p class="mt-0.5 text-sm text-slate-600">Administrator akan memeriksa dan menyetujui pengajuan UMKM Anda.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-700">3</span>
+                                <div>
+                                    <p class="text-sm font-medium text-slate-900">Kelola Produk</p>
+                                    <p class="mt-0.5 text-sm text-slate-600">Setelah disetujui, tambahkan produk untuk mempromosikan usaha Anda.</p>
+                                </div>
+                            </li>
+                        </ol>
+
+                        <div class="mt-6 flex flex-wrap items-center gap-3">
+                            <a href="{{ route('owner.umkm.create') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition duration-300 hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
+                                {{ __('Ajukan UMKM') }}
+                            </a>
+                            <p class="text-sm text-slate-500">
+                                Langkah berikutnya: lengkapi data UMKM Anda.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @else
+                @php
+                    $actions = [];
+                    if (in_array($umkm->status, ['needs_revision', 'rejected'], true)) {
+                        $actions[] = [
+                            'text' => $umkm->status === 'rejected'
+                                ? 'UMKM perlu diperbaiki sebelum diajukan kembali'
+                                : 'UMKM perlu diperbaiki',
+                            'label' => 'Perbaiki UMKM',
+                            'url' => route('owner.umkm.edit', $umkm),
+                        ];
+                    }
+                    if (($productCounts['needs_revision'] ?? 0) > 0) {
+                        $actions[] = ['text' => 'Produk perlu diperbaiki', 'label' => 'Perbaiki Produk', 'url' => route('owner.products.index', $umkm)];
+                    }
+                    if (($productCounts['rejected'] ?? 0) > 0) {
+                        $actions[] = ['text' => 'Produk ditolak', 'label' => 'Perbaiki Produk', 'url' => route('owner.products.index', $umkm)];
+                    }
+                    if (($productCounts['draft'] ?? 0) > 0) {
+                        $actions[] = ['text' => 'Anda memiliki produk yang belum diajukan', 'label' => 'Kelola Produk', 'url' => route('owner.products.index', $umkm)];
+                    }
+
+                    $umkmStatus = match ($umkm->status) {
+                        'draft' => [
+                            'title' => 'Belum diajukan',
+                            'icon' => 'draft',
+                            'message' => 'UMKM Anda masih berupa draft. Lengkapi informasi dan kirim pengajuan agar diperiksa Administrator.',
+                        ],
+                        'pending' => [
+                            'title' => 'Sedang diperiksa',
+                            'icon' => 'pending',
+                            'message' => 'UMKM Anda sedang menunggu pemeriksaan Administrator.',
+                        ],
+                        'approved' => [
+                            'title' => 'Aktif',
+                            'icon' => 'approved',
+                            'message' => 'UMKM Anda telah disetujui dan dapat ditampilkan di Portal.',
+                        ],
+                        'needs_revision' => [
+                            'title' => 'Perlu diperbaiki',
+                            'icon' => 'needs_revision',
+                            'message' => 'Administrator meminta perubahan pada pengajuan Anda.',
+                        ],
+                        'rejected' => [
+                            'title' => 'Pengajuan ditolak',
+                            'icon' => 'rejected',
+                            'message' => 'Pengajuan UMKM Anda ditolak. Silakan perbaiki informasi UMKM sesuai catatan Administrator, lalu kirim kembali untuk diperiksa.',
+                        ],
+                        default => ['title' => 'Aktif', 'icon' => 'approved', 'message' => ''],
+                    };
+
+                    $bulan = [
+                        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+                    ];
+                @endphp
+
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <section class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+                            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ __('Status UMKM') }}</h2>
+
+                            <div class="mt-4 flex items-start gap-3">
+                                @if ($umkmStatus['icon'] === 'approved')
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                                        <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 6 9 17l-5-5" />
+                                        </svg>
+                                    </span>
+                                @elseif ($umkmStatus['icon'] === 'pending')
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                                        <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path d="M12 6v6l4 2" />
+                                        </svg>
+                                    </span>
+                                @elseif ($umkmStatus['icon'] === 'needs_revision')
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                                        <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                            <line x1="12" x2="12" y1="9" y2="13" />
+                                            <line x1="12" x2="12.01" y1="17" y2="17" />
+                                        </svg>
+                                    </span>
+                                @elseif ($umkmStatus['icon'] === 'rejected')
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                                        <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path d="m15 9-6 6" />
+                                            <path d="m9 9 6 6" />
+                                        </svg>
+                                    </span>
+                                @else
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                                        <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                                            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                                        </svg>
+                                    </span>
+                                @endif
+
+                                <div class="min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <p class="text-base font-semibold tracking-tight text-slate-900">{{ $umkmStatus['title'] }}</p>
+                                        <x-badge :status="$umkm->status" />
+                                    </div>
+                                    <p class="mt-1 break-words text-sm font-medium text-slate-700">{{ $umkm->name }}</p>
+                                </div>
+                            </div>
+
+                            <p class="mt-4 text-sm leading-relaxed text-slate-600">
+                                {{ $umkmStatus['message'] }}
+                            </p>
+
+                            @if ($umkm->status === 'needs_revision' && $revisionNote)
+                                <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                                    <p class="text-sm text-amber-800">
+                                        <span class="font-semibold">Catatan Administrator:</span> {{ $revisionNote }}
+                                    </p>
+                                </div>
+                            @elseif ($umkm->status === 'rejected' && $rejectionNote)
+                                <div class="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                                    <p class="text-sm text-red-800">
+                                        <span class="font-semibold">Alasan Penolakan:</span> {{ $rejectionNote }}
+                                    </p>
+                                </div>
+                            @endif
+
+                            <div class="mt-5 flex flex-wrap gap-3">
+                                @if ($umkm->status === 'draft')
+                                    <form method="POST" action="{{ route('owner.umkm.submit', $umkm) }}" onsubmit="return confirm('Yakin ingin mengirim pengajuan UMKM ini?');">
+                                        @csrf
+                                        <x-primary-button>{{ __('Kirim Pengajuan') }}</x-primary-button>
+                                    </form>
+                                    <a href="{{ route('owner.umkm.edit', $umkm) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition duration-300 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
+                                        {{ __('Ubah UMKM') }}
+                                    </a>
+                                @elseif (in_array($umkm->status, ['needs_revision', 'rejected'], true))
+                                    <a href="{{ route('owner.umkm.edit', $umkm) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition duration-300 hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
+                                        {{ __('Perbaiki UMKM') }}
+                                    </a>
+                                @elseif ($umkm->status === 'approved')
+                                    <a href="{{ route('public.umkm.show', $umkm) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition duration-300 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
+                                        {{ __('Lihat UMKM') }}
+                                    </a>
+                                @endif
+                            </div>
+                        </section>
+
+                        <section class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+                            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ __('Status Produk') }}</h2>
+
+                            @if ($umkm->status === 'approved')
+                                @if ($productCounts['total'] > 0)
+                                    <dl class="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 xl:grid-cols-6">
+                                        <div>
+                                            <dt class="text-sm text-slate-500">Total Produk</dt>
+                                            <dd class="mt-1 text-lg font-semibold text-slate-900">{{ $productCounts['total'] }}</dd>
+                                        </div>
+                                        <div>
+                                            <dt class="text-sm text-slate-500">Draft</dt>
+                                            <dd class="mt-1 text-lg font-semibold text-slate-900">{{ $productCounts['draft'] }}</dd>
+                                        </div>
+                                        <div>
+                                            <dt class="text-sm text-slate-500">Menunggu Pemeriksaan</dt>
+                                            <dd class="mt-1 text-lg font-semibold text-slate-900">{{ $productCounts['pending'] }}</dd>
+                                        </div>
+                                        <div>
+                                            <dt class="text-sm text-slate-500">Disetujui</dt>
+                                            <dd class="mt-1 text-lg font-semibold text-slate-900">{{ $productCounts['approved'] }}</dd>
+                                        </div>
+                                        <div>
+                                            <dt class="text-sm text-slate-500">Perlu Revisi</dt>
+                                            <dd class="mt-1 text-lg font-semibold text-slate-900">{{ $productCounts['needs_revision'] }}</dd>
+                                        </div>
+                                        <div>
+                                            <dt class="text-sm text-slate-500">Ditolak</dt>
+                                            <dd class="mt-1 text-lg font-semibold text-slate-900">{{ $productCounts['rejected'] }}</dd>
+                                        </div>
+                                    </dl>
+                                @else
+                                    <p class="mt-4 text-sm leading-relaxed text-slate-600">
+                                        Belum ada produk. Tambahkan produk pertama Anda untuk mulai menampilkan katalog usaha.
+                                    </p>
+                                @endif
+                                <div class="mt-5">
+                                    <a href="{{ route('owner.products.index', $umkm) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition duration-300 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
+                                        {{ __('Kelola Produk') }}
+                                    </a>
+                                </div>
+                            @else
+                                <p class="mt-4 text-sm leading-relaxed text-slate-600">
+                                    Produk dapat ditambahkan setelah UMKM disetujui.
+                                </p>
+                            @endif
+                        </section>
+                    </div>
+
+                    <section class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+                        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ __('Hal yang Perlu Tindakan') }}</h2>
+
+                        @if ($umkm->status === 'draft')
+                            <div class="mt-4 flex items-start gap-3">
+                                <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                                    <svg class="h-3.5 w-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                                        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                                    </svg>
+                                </span>
+                                <p class="text-sm leading-relaxed text-slate-700">
+                                    Lengkapi informasi UMKM lalu kirim pengajuan agar diperiksa Administrator.
+                                </p>
+                            </div>
+                        @elseif ($umkm->status === 'pending')
+                            <div class="mt-4 flex items-start gap-3">
+                                <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                                    <svg class="h-3.5 w-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path d="M12 6v6l4 2" />
+                                    </svg>
+                                </span>
+                                <p class="text-sm leading-relaxed text-slate-700">
+                                    Pengajuan UMKM Anda sedang diperiksa Administrator. Hasil pemeriksaan akan muncul di sini.
+                                </p>
+                            </div>
+                        @elseif ($umkm->status === 'approved' && ($productCounts['pending'] ?? 0) > 0)
+                            <div class="mt-4 flex items-start gap-3">
+                                <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                                    <svg class="h-3.5 w-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path d="M12 6v6l4 2" />
+                                    </svg>
+                                </span>
+                                <p class="text-sm leading-relaxed text-slate-700">
+                                    Anda memiliki {{ $productCounts['pending'] }} produk yang sedang diperiksa Administrator.
+                                </p>
+                            </div>
+                        @elseif (! empty($actions))
+                            <ul class="mt-4 divide-y divide-slate-100">
+                                @foreach ($actions as $action)
+                                    <li class="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center">
+                                        <div class="flex min-w-0 items-start gap-3">
+                                            <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                                                <svg class="h-3.5 w-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                                    <line x1="12" x2="12" y1="9" y2="13" />
+                                                    <line x1="12" x2="12.01" y1="17" y2="17" />
+                                                </svg>
+                                            </span>
+                                            <p class="break-words text-sm text-slate-700">{{ $action['text'] }}</p>
+                                        </div>
+                                        <a href="{{ $action['url'] }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition duration-300 hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 sm:ms-auto">
+                                            {{ $action['label'] }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <div class="mt-4 flex items-start gap-3">
+                                <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                                    <svg class="h-3.5 w-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 6 9 17l-5-5" />
+                                    </svg>
+                                </span>
+                                <p class="text-sm leading-relaxed text-slate-700">
+                                    Semua pengajuan Anda sudah diproses. Tidak ada tindakan yang diperlukan.
+                                </p>
+                            </div>
+                        @endif
+                    </section>
+
+                    @if ($umkm->status === 'approved')
+                        <section class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+                            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ __('Aksi Cepat') }}</h2>
+
+                            <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                                <a href="{{ route('owner.products.create', $umkm) }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition duration-300 hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
+                                    <svg class="h-4 w-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M5 12h14" />
+                                        <path d="M12 5v14" />
+                                    </svg>
+                                    {{ __('Tambah Produk') }}
+                                </a>
+                                <a href="{{ route('public.umkm.show', $umkm) }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition duration-300 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
+                                    <svg class="h-4 w-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M15 3h6v6" />
+                                        <path d="M10 14 21 3" />
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                    </svg>
+                                    {{ __('Lihat Portal Publik') }}
+                                </a>
+                            </div>
+                        </section>
+                    @endif
+
+                    <section class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+                        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ __('Aktivitas Terbaru') }}</h2>
+
+                        @if ($activities->isEmpty())
+                            <p class="mt-4 text-sm leading-relaxed text-slate-600">
+                                Belum ada aktivitas.
+                            </p>
+                        @else
+                            <ul class="mt-4 space-y-3">
+                                @foreach ($activities as $activity)
+                                    @php
+                                        $type = match ($activity->event) {
+                                            'approved' => 'success',
+                                            'needs_revision', 'rejected' => 'warning',
+                                            default => 'neutral',
+                                        };
+                                        $tanggal = $activity->created_at->format('d') . ' ' . $bulan[$activity->created_at->month] . ' ' . $activity->created_at->format('Y');
+                                    @endphp
+                                    <li class="flex items-start gap-3">
+                                        @if ($type === 'success')
+                                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                                                <svg class="h-4 w-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M20 6 9 17l-5-5" />
+                                                </svg>
+                                            </span>
+                                        @elseif ($type === 'warning')
+                                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                                                <svg class="h-4 w-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                                    <line x1="12" x2="12" y1="9" y2="13" />
+                                                    <line x1="12" x2="12.01" y1="17" y2="17" />
+                                                </svg>
+                                            </span>
+                                        @else
+                                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                                                <svg class="h-4 w-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10" />
+                                                    <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+                                                </svg>
+                                            </span>
+                                        @endif
+                                        <div class="text-sm text-slate-700">
+                                            {{ $activity->description }}
+                                            <span class="block text-xs text-slate-500">{{ $tanggal }}</span>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </section>
+                </div>
+            @endif
+        </div>
+    </div>
+</x-app-layout>
