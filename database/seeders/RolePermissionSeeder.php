@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Models\Role;
 
 class RolePermissionSeeder extends Seeder
@@ -12,5 +13,7 @@ class RolePermissionSeeder extends Seeder
         Role::findOrCreate('owner', 'web');
 
         Role::findOrCreate('administrator', 'web');
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 }
