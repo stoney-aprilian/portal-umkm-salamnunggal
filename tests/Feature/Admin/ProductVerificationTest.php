@@ -441,7 +441,7 @@ class ProductVerificationTest extends TestCase
         $this->assertSame($before['price'], $after->price);
         $this->assertSame($before['description'], $after->description);
         $this->assertSame($owner->id, $after->umkm->user_id);
-        $this->assertSame('pending', $owner->fresh()->status);
+        $this->assertSame('approved', $owner->fresh()->status);
     }
 
     public function test_approval_does_not_create_media(): void

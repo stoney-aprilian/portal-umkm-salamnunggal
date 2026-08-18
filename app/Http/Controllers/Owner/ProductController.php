@@ -8,10 +8,12 @@ use App\Http\Requests\Owner\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Umkm;
+use App\Support\ProductManagementActivity;
 use App\Support\VerificationActivity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -26,7 +28,7 @@ class ProductController extends Controller
 
         return view('owner.products.index', [
             'umkm' => $umkm,
-            'products' => $umkm->products()->latest('id')->get(),
+            'products' => $umkm->products()->with('media', 'revisions')->latest('id')->get(),
         ]);
     }
 
@@ -65,6 +67,19 @@ class ProductController extends Controller
 
         return redirect()->route('owner.products.index', $umkm)
             ->with('status', 'Draft produk berhasil disimpan.');
+    }
+
+    public function show(Product $product): View|RedirectResponse
+    {
+        $this->authorize('view', $product);
+
+        if ($redirect = $this->ensureUmkmApproved($product->umkm)) {
+            return $redirect;
+        }
+
+        $product->load(['umkm', 'category', 'media']);
+
+        return view('owner.products.show', ['product' => $product]);
     }
 
     public function edit(Product $product): View|RedirectResponse
@@ -149,11 +164,59 @@ class ProductController extends Controller
             ->with('status', 'Pengajuan produk berhasil dikirim dan sedang menunggu pemeriksaan.');
     }
 
+    public function destroy(Request $request, Product $product): RedirectResponse
+    {
+        $this->authorize('delete', $product);
+
+        if ($redirect = $this->ensureUmkmApproved($product->umkm)) {
+            return $redirect;
+        }
+
+        if ($redirect = $this->ensureDeletable($product)) {
+            return $redirect;
+        }
+
+        DB::transaction(function () use ($request, $product) {
+            foreach ($product->revisions()->with('media')->get() as $revision) {
+                foreach ($revision->media as $media) {
+                    Storage::disk($media->disk)->delete($media->path);
+                    $media->delete();
+                }
+
+                $revision->verificationRequests()->delete();
+                $revision->delete();
+            }
+
+            foreach ($product->media as $media) {
+                Storage::disk($media->disk)->delete($media->path);
+                $media->delete();
+            }
+
+            $product->verificationRequests()->delete();
+            $product->delete();
+
+            ProductManagementActivity::log('product_deleted', $product, $request->user());
+        });
+
+        return redirect()->route('owner.products.index', $product->umkm)
+            ->with('status', 'Produk beserta foto dan pengajuannya berhasil dihapus.');
+    }
+
     private function ensureUmkmApproved(Umkm $umkm): ?RedirectResponse
     {
         if ($umkm->status !== 'approved') {
             return redirect()->back()
                 ->with('error', 'Produk hanya dapat dikelola ketika UMKM telah disetujui.');
+        }
+
+        return null;
+    }
+
+    private function ensureDeletable(Product $product): ?RedirectResponse
+    {
+        if (! in_array($product->status, ['draft', 'needs_revision', 'rejected'], true)) {
+            return redirect()->back()
+                ->with('error', 'Produk hanya dapat dihapus ketika berstatus draft, membutuhkan revisi, atau ditolak.');
         }
 
         return null;

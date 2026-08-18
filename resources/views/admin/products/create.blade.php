@@ -1,0 +1,128 @@
+<x-app-layout title="Tambah Produk">
+    <div class="py-8 sm:py-10">
+        <div class="container-page">
+            <a href="{{ route('admin.products.index') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-[#8A7464] transition-colors duration-150 hover:text-[#5C4033] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
+                <svg class="h-4 w-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m15 18-6-6 6-6" />
+                </svg>
+                Kembali ke Daftar Produk
+            </a>
+
+            <div class="mt-6">
+                <h1 class="text-2xl font-semibold tracking-tight text-slate-900">Tambah Produk</h1>
+                <p class="mt-1 text-sm text-slate-600">Buat produk untuk UMKM yang sudah disetujui sebagai layanan pendampingan. Produk yang dibuat langsung berstatus Disetujui dan tampil di portal.</p>
+            </div>
+
+            @if (session('status'))
+                <x-alert type="success" class="mt-6">{{ session('status') }}</x-alert>
+            @endif
+            @if (session('error'))
+                <x-alert type="error" class="mt-6">{{ session('error') }}</x-alert>
+            @endif
+
+            <form method="POST" action="{{ route('admin.products.store') }}" class="mt-6 space-y-6">
+                @csrf
+
+                <div class="rounded-2xl bg-white shadow-sm">
+                    <div class="border-b border-slate-100 px-5 py-4 sm:px-6 sm:py-5">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F4EDE1] text-[#5C4033]" aria-hidden="true">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                                    <path d="M3 6h18" />
+                                    <path d="M16 10a4 4 0 0 1-8 0" />
+                                </svg>
+                            </span>
+                            <div>
+                                <h2 class="text-base font-semibold text-slate-900">UMKM & Kategori</h2>
+                                <p class="mt-0.5 text-xs text-slate-500">Tentukan UMKM dan kategori produk.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-5 p-5 sm:p-6">
+                        <div>
+                            <label for="umkm_id" class="block text-sm font-medium text-slate-700">UMKM <span class="text-red-500" aria-hidden="true">*</span></label>
+                            @if ($umkms->isEmpty())
+                                <p class="mt-2 rounded-xl bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-800">
+                                    Belum ada UMKM berstatus disetujui. Tambahkan UMKM terlebih dahulu di halaman <a href="{{ route('admin.umkms.create') }}" class="font-semibold underline">Kelola UMKM</a>.
+                                </p>
+                            @else
+                                <x-select id="umkm_id" name="umkm_id" class="mt-1 block w-full" required>
+                                    <option value="">Pilih UMKM</option>
+                                    @foreach ($umkms as $umkm)
+                                        <option value="{{ $umkm->id }}" @selected(old('umkm_id', request('umkm')) == $umkm->id)>
+                                            {{ $umkm->name }} (Pemilik: {{ $umkm->user?->name ?? '—' }})
+                                        </option>
+                                    @endforeach
+                                </x-select>
+                                @if (request('umkm') && $umkms->contains('id', (int) request('umkm')))
+                                    <p class="mt-1 text-xs text-slate-500">UMKM telah dipilih dari halaman Kelola UMKM. Anda dapat menggantinya.</p>
+                                @endif
+                            @endif
+                            <x-input-error :messages="$errors->get('umkm_id')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <label for="category_id" class="block text-sm font-medium text-slate-700">Kategori <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <x-select id="category_id" name="category_id" class="mt-1 block w-full" required>
+                                <option value="">Pilih Kategori</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </x-select>
+                            <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl bg-white shadow-sm">
+                    <div class="border-b border-slate-100 px-5 py-4 sm:px-6 sm:py-5">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F4EDE1] text-[#5C4033]" aria-hidden="true">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                            </span>
+                            <div>
+                                <h2 class="text-base font-semibold text-slate-900">Informasi Produk</h2>
+                                <p class="mt-0.5 text-xs text-slate-500">Nama, harga, dan deskripsi produk.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-5 p-5 sm:p-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-slate-700">Nama Produk <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" value="{{ old('name') }}" required autofocus />
+                            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-slate-700">Harga (Rp) <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <x-text-input id="price" name="price" type="text" class="mt-1 block w-full" value="{{ old('price') }}" placeholder="Contoh: 50000" required />
+                            <x-input-error :messages="$errors->get('price')" class="mt-2" />
+                            <p class="mt-1 text-xs text-slate-500">Tulis angka tanpa titik atau koma.</p>
+                        </div>
+
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-slate-700">Deskripsi</label>
+                            <textarea id="description" name="description" rows="4" class="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#C26A4A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">{{ old('description') }}</textarea>
+                            <x-input-error :messages="$errors->get('description')" class="mt-2" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
+                    <a href="{{ route('admin.products.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition duration-300 hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
+                        Batal
+                    </a>
+                    <button type="submit" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#C26A4A] px-5 text-sm font-semibold text-white transition duration-300 hover:bg-[#A8563A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
+                        Simpan Produk
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</x-app-layout>

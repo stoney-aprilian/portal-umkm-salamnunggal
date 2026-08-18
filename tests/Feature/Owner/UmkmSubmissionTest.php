@@ -203,11 +203,11 @@ class UmkmSubmissionTest extends TestCase
         $owner = $this->owner();
         $umkm = $this->umkmFor($owner);
 
-        $this->assertSame('pending', $owner->status);
+        $this->assertSame('approved', $owner->status);
 
         $this->actingAs($owner)->post(route('owner.umkm.submit', $umkm));
 
-        $this->assertSame('pending', $owner->fresh()->status);
+        $this->assertSame('approved', $owner->fresh()->status);
     }
 
     public function test_owner_cannot_submit_another_owners_umkm(): void

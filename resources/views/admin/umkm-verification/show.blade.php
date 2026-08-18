@@ -1,8 +1,15 @@
 <x-app-layout :title="$umkm->name . ' — Verifikasi UMKM'">
     <x-slot name="header">
-        <h1 class="font-semibold text-xl text-slate-900 leading-tight">
-            {{ $umkm->name }}
-        </h1>
+        <div class="flex flex-wrap items-center gap-2">
+            <h1 class="font-semibold text-xl text-slate-900 leading-tight">
+                {{ $umkm->name }}
+            </h1>
+            @if ($umkm instanceof \App\Models\UmkmRevision)
+                <span class="inline-flex items-center rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-800">Pengajuan Perubahan</span>
+            @else
+                <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">Pengajuan Baru</span>
+            @endif
+        </div>
     </x-slot>
 
     <div class="py-12">
@@ -20,7 +27,14 @@
                 {{ __('Kembali ke Antrean') }}
             </a>
 
-            @if ($umkm->status === 'approved')
+            @if ($current)
+                <x-alert type="info" class="mt-4">
+                    <p class="font-semibold text-slate-800">Ini adalah pengajuan perubahan untuk UMKM yang sudah disetujui.</p>
+                    <p class="mt-1 text-sm text-slate-700">
+                        Data yang sedang tampil di publik adalah <span class="font-semibold">{{ $current->name }}</span> dan tidak terpengaruh sampai perubahan ini disetujui. Data publik lama ditampilkan di bagian bawah untuk perbandingan.
+                    </p>
+                </x-alert>
+            @elseif ($umkm->status === 'approved')
                 <a href="{{ route('public.umkm.show', $umkm) }}" target="_blank" rel="noopener" class="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition duration-300 hover:border-slate-400 hover:bg-slate-50">
                     Lihat Halaman Publik
                 </a>
@@ -99,9 +113,9 @@
 
             <div class="mt-6 card">
                 <div class="p-6">
-                    <h2 class="font-semibold text-slate-900">Media UMKM</h2>
+                    <h2 class="font-semibold text-slate-900">Media {{ $current ? 'pada Perubahan Ini' : 'UMKM' }}</h2>
                     <p class="mt-1 text-sm text-slate-600">
-                        Media yang diunggah pemilik untuk ditampilkan di halaman publik.
+                        {{ $current ? 'Media yang diunggah pemilik untuk menggantikan atau melengkapi media publik.' : 'Media yang diunggah pemilik untuk ditampilkan di halaman publik.' }}
                     </p>
 
                     @php
@@ -144,6 +158,86 @@
                     @endif
                 </div>
             </div>
+
+            @if ($current)
+                <div class="mt-6 card">
+                    <div class="p-6">
+                        <h2 class="font-semibold text-slate-900">Data Publik Saat Ini</h2>
+                        <p class="mt-1 text-sm text-slate-600">
+                            Data yang sedang tampil di publik. Tidak berubah sampai perubahan ini disetujui.
+                        </p>
+                        <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 text-sm">
+                            <div>
+                                <dt class="font-medium text-slate-500">Nama</dt>
+                                <dd class="mt-0.5 text-slate-900">{{ $current->name }}</dd>
+                            </div>
+                            <div>
+                                <dt class="font-medium text-slate-500">Kategori</dt>
+                                <dd class="mt-0.5 text-slate-900">{{ $current->category?->name ?? '—' }}</dd>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <dt class="font-medium text-slate-500">Deskripsi</dt>
+                                <dd class="mt-0.5 text-slate-900 whitespace-pre-line">{{ $current->description ?? '—' }}</dd>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <dt class="font-medium text-slate-500">Alamat</dt>
+                                <dd class="mt-0.5 text-slate-900 whitespace-pre-line">{{ $current->address ?? '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="font-medium text-slate-500">Nomor Telepon</dt>
+                                <dd class="mt-0.5 text-slate-900">{{ $current->phone ?? '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="font-medium text-slate-500">Email</dt>
+                                <dd class="mt-0.5 text-slate-900 break-all">{{ $current->email ?? '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="font-medium text-slate-500">Jam Operasional</dt>
+                                <dd class="mt-0.5 text-slate-900">{{ $current->operational_hours ?? '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="font-medium text-slate-500">Status Publik</dt>
+                                <dd class="mt-0.5 text-slate-900">Disetujui</dd>
+                            </div>
+                        </dl>
+
+                        @php
+                            $currentLogo = $current->media->firstWhere('collection', 'logo');
+                            $currentBanner = $current->media->firstWhere('collection', 'banner');
+                            $currentGallery = $current->media->where('collection', 'gallery')->sortBy('sort_order')->values();
+                        @endphp
+
+                        @if ($currentLogo || $currentBanner || $currentGallery->isNotEmpty())
+                            <div class="mt-4 space-y-4">
+                                @if ($currentLogo)
+                                    <div>
+                                        <p class="text-sm font-medium text-slate-700">Logo</p>
+                                        <img src="{{ Storage::disk($currentLogo->disk)->url($currentLogo->path) }}" alt="Logo {{ $current->name }}" class="mt-1 h-24 w-24 rounded-lg border border-slate-200 object-cover">
+                                    </div>
+                                @endif
+
+                                @if ($currentBanner)
+                                    <div>
+                                        <p class="text-sm font-medium text-slate-700">Banner</p>
+                                        <img src="{{ Storage::disk($currentBanner->disk)->url($currentBanner->path) }}" alt="Banner {{ $current->name }}" class="mt-1 aspect-[3/1] w-full max-w-xl rounded-lg border border-slate-200 object-cover">
+                                    </div>
+                                @endif
+
+                                @if ($currentGallery->isNotEmpty())
+                                    <div>
+                                        <p class="text-sm font-medium text-slate-700">Galeri ({{ $currentGallery->count() }})</p>
+                                        <div class="mt-1 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                            @foreach ($currentGallery as $item)
+                                                <img src="{{ Storage::disk($item->disk)->url($item->path) }}" alt="Galeri {{ $current->name }}" class="aspect-[4/3] w-full rounded-lg border border-slate-200 object-cover">
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
 
             <div class="mt-6 card">
                 <div class="p-6">

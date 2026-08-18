@@ -173,14 +173,14 @@ class UmkmCreationTest extends TestCase
     {
         $owner = $this->owner();
 
-        $this->assertSame('pending', $owner->status);
+        $this->assertSame('approved', $owner->status);
 
         $this->actingAs($owner)->post(route('owner.umkm.store'), [
             'name' => 'Warung Maju',
             'category_id' => $this->umkmCategory()->id,
         ]);
 
-        $this->assertSame('pending', $owner->fresh()->status);
+        $this->assertSame('approved', $owner->fresh()->status);
     }
 
     public function test_product_category_is_rejected(): void

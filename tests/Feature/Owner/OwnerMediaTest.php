@@ -239,6 +239,56 @@ class OwnerMediaTest extends TestCase
         Storage::disk('public')->assertExists($media->path);
     }
 
+    public function test_owner_can_replace_product_photo_and_old_file_is_removed(): void
+    {
+        $umkm = $this->umkmFor($this->owner(), 'approved');
+        $product = $this->productFor($umkm);
+
+        $this->actingAs($umkm->user)
+            ->post(route('owner.products.media.store', [$product, 'product']), [
+                'file_product' => UploadedFile::fake()->image('foto-1.png'),
+            ]);
+
+        $old = $product->media()->where('collection', 'product')->first();
+        Storage::disk('public')->assertExists($old->path);
+
+        $this->actingAs($umkm->user)
+            ->post(route('owner.products.media.store', [$product, 'product']), [
+                'file_product' => UploadedFile::fake()->image('foto-2.png'),
+            ])->assertRedirect()->assertSessionHas('status');
+
+        $this->assertDatabaseCount('media', 1);
+        $new = $product->media()->where('collection', 'product')->first();
+        $this->assertNotSame($old->id, $new->id);
+        $this->assertSame('product', $new->collection);
+        $this->assertSame(Product::class, $new->mediable_type);
+        $this->assertSame($product->id, $new->mediable_id);
+        Storage::disk('public')->assertExists($new->path);
+        Storage::disk('public')->assertMissing($old->path);
+    }
+
+    public function test_failed_product_photo_replace_keeps_existing_photo(): void
+    {
+        $umkm = $this->umkmFor($this->owner(), 'approved');
+        $product = $this->productFor($umkm);
+
+        $this->actingAs($umkm->user)
+            ->post(route('owner.products.media.store', [$product, 'product']), [
+                'file_product' => UploadedFile::fake()->image('foto-1.png'),
+            ]);
+
+        $old = $product->media()->where('collection', 'product')->first();
+
+        $this->actingAs($umkm->user)
+            ->post(route('owner.products.media.store', [$product, 'product']), [
+                'file_product' => UploadedFile::fake()->create('gambar.svg', 10, 'image/svg+xml'),
+            ])->assertSessionHasErrors('file_product');
+
+        $this->assertDatabaseCount('media', 1);
+        $this->assertSame($old->id, $product->media()->where('collection', 'product')->first()->id);
+        Storage::disk('public')->assertExists($old->path);
+    }
+
     // 8-10. Validasi file.
 
     public function test_invalid_mime_type_is_rejected(): void

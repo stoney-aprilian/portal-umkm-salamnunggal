@@ -19,8 +19,13 @@ class SettingSeeder extends Seeder
     {
         $settings = [
             'site.name' => 'Portal UMKM Salamnunggal',
+            'site.tagline' => 'Desa Salamnunggal',
+            'site.description' => 'Portal UMKM Desa Salamnunggal — temukan UMKM dan produk unggulan Desa Salamnunggal, lihat detail usaha lokal, dan hubungi langsung pemiliknya.',
+            'site.hero_title' => 'Portal UMKM Desa Salamnunggal',
+            'site.hero_description' => 'Temukan UMKM serta produk unggulan dari Desa Salamnunggal. Jelajahi usaha lokal, lihat produknya, dan hubungi langsung pemiliknya.',
             'contact.address' => 'Kantor Desa Salamnunggal',
             'contact.phone' => '+62 812-3456-7890',
+            'contact.whatsapp' => '+62 812-3456-7890',
             'contact.email' => 'portal@umkm-salamnunggal.id',
             'contact.hours' => 'Senin - Jumat, 08.00 - 15.00 WIB',
         ];

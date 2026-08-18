@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Authorization;
 
+use App\Models\Category;
+use App\Models\Setting;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
@@ -47,8 +49,13 @@ class DatabaseSeederTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $this->assertDatabaseHas('settings', ['key' => 'site.name']);
+        $this->assertDatabaseHas('settings', ['key' => 'site.tagline']);
+        $this->assertDatabaseHas('settings', ['key' => 'site.description']);
+        $this->assertDatabaseHas('settings', ['key' => 'site.hero_title']);
+        $this->assertDatabaseHas('settings', ['key' => 'site.hero_description']);
         $this->assertDatabaseHas('settings', ['key' => 'contact.address']);
         $this->assertDatabaseHas('settings', ['key' => 'contact.phone']);
+        $this->assertDatabaseHas('settings', ['key' => 'contact.whatsapp']);
         $this->assertDatabaseHas('settings', ['key' => 'contact.email']);
         $this->assertDatabaseHas('settings', ['key' => 'contact.hours']);
     }
@@ -59,7 +66,7 @@ class DatabaseSeederTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $this->assertSame(2, Role::count());
-        $this->assertSame(2, \App\Models\Category::count());
-        $this->assertSame(5, \App\Models\Setting::count());
+        $this->assertSame(2, Category::count());
+        $this->assertSame(10, Setting::count());
     }
 }

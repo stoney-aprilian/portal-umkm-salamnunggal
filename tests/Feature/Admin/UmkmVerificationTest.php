@@ -285,7 +285,7 @@ class UmkmVerificationTest extends TestCase
 
         $this->assertSame($owner->id, $umkm->fresh()->user_id);
         $this->assertSame($owner->id, $request->fresh()->user_id);
-        $this->assertSame('pending', $owner->fresh()->status);
+        $this->assertSame('approved', $owner->fresh()->status);
     }
 
     public function test_approval_does_not_create_media(): void

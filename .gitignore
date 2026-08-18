@@ -36,3 +36,25 @@ Homestead.yaml
 _ide_helper.php
 .phpactor.json
 auth.json
+
+# AI/reference/deployment artifacts
+.kilo/
+docx/
+analyze_layout.sh
+chrome_dom.txt
+home_render_check*.html
+homepage.pdf
+homepage_*.png
+public/hot
+template.php
+test_output.txt
+test_result*.txt
+vite_css*.txt
+
+# Backup files
+resources/views/layouts/navigation.blade.php.bak
+resources/views/layouts/navigation.blade.php.bak2
+resources/views/layouts/navigation.blade.php.bak3
+
+# Deployment helper
+deployment/

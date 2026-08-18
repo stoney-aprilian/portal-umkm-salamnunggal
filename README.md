@@ -14,7 +14,7 @@ Portal digital untuk UMKM di Desa Salamnunggal. Sistem menyediakan penemuan UMKM
 | --- | --- |
 | Publik | Menjelajah dan mencari UMKM serta produk tanpa masuk akun |
 | Owner | Mendaftarkan, mengelola, dan mengirim UMKM beserta produknya untuk diverifikasi |
-| Administrator | Memverifikasi dan memoderasi pengajuan UMKM dan produk |
+| Administrator | Memverifikasi akun owner serta pengajuan UMKM dan produk |
 
 ## Instalasi
 
@@ -34,6 +34,20 @@ npm install && npm run build
 ```bash
 php artisan test
 ```
+
+## Pengaturan Portal
+
+Administrator dapat mengelola pengaturan operasional dan konten portal tanpa mengubah kode:
+
+- Identitas: nama portal, tagline, deskripsi portal (meta & footer)
+- Beranda: judul hero, deskripsi hero, gambar hero
+- Kontak resmi: alamat, telepon, WhatsApp, email, website, jam pelayanan, tautan Google Maps
+- Media sosial: Instagram, Facebook
+- Branding: logo dan favicon
+
+Lokasi: halaman **Pengaturan Portal** (`/admin/settings`, role Administrator).
+
+Pengaturan disimpan pada tabel `settings` (di-seed oleh `SettingSeeder`, idempotent). Kolom yang dikosongkan memakai nilai bawaan di view; file branding tersimpan di `storage/app/public/branding` (membutuhkan `storage:link`).
 
 ## Demo Lokal
 
@@ -76,9 +90,6 @@ Checklist sebelum hosting:
 
 Fitur berikut terdokumentasi namun belum diimplementasikan dan sengaja tidak diklaim:
 
-- **Moderasi perubahan data approved**: pemilik belum dapat mengajukan perubahan UMKM/produk yang sudah disetujui.
-- **Verifikasi akun Owner**: akun baru langsung aktif (`users.status` belum ditegakkan).
-- **Kelola pengguna, kategori, dan settings** oleh Administrator: belum ada antarmuka admin.
 - **Email verification** terpasang namun belum diaktifkan pada route mana pun.
 
 ## Lisensi

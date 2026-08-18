@@ -39,11 +39,22 @@ class UserAccountTest extends TestCase
         $this->assertSame('081234567890', $user->fresh()->phone);
     }
 
-    public function test_status_defaults_to_pending(): void
+    public function test_status_defaults_to_pending_at_database_level(): void
+    {
+        $id = DB::table('users')->insertGetId([
+            'name' => 'Baru',
+            'email' => 'baru@example.com',
+            'password' => Hash::make('password'),
+        ]);
+
+        $this->assertSame('pending', User::find($id)->status);
+    }
+
+    public function test_factory_defaults_to_approved_for_test_actors(): void
     {
         $user = User::factory()->create();
 
-        $this->assertSame('pending', $user->fresh()->status);
+        $this->assertSame('approved', $user->fresh()->status);
     }
 
     public function test_all_documented_status_values_are_valid(): void
@@ -83,7 +94,7 @@ class UserAccountTest extends TestCase
             'email' => 'budi@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-        ])->assertRedirect(route('dashboard'));
+        ])->assertRedirect(route('account.verification.notice'));
 
         $this->assertSame('pending', User::where('email', 'budi@example.com')->first()->status);
     }
@@ -97,7 +108,7 @@ class UserAccountTest extends TestCase
             'email' => 'siti@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-        ])->assertRedirect(route('dashboard'));
+        ])->assertRedirect(route('account.verification.notice'));
 
         $user = User::where('email', 'siti@example.com')->first();
 
@@ -115,7 +126,7 @@ class UserAccountTest extends TestCase
             'password' => 'password',
             'password_confirmation' => 'password',
             'status' => 'suspended',
-        ])->assertRedirect(route('dashboard'));
+        ])->assertRedirect(route('account.verification.notice'));
 
         $user = User::where('email', 'agus@example.com')->first();
 

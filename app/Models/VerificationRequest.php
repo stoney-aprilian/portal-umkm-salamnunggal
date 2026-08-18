@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,8 +25,16 @@ class VerificationRequest extends Model
         static::saving(function (VerificationRequest $request) {
             $verifiable = $request->verifiable()->first();
 
-            if ($verifiable === null || ! ($verifiable instanceof Umkm) && ! ($verifiable instanceof Product)) {
-                throw new LogicException('A verification request must target an UMKM or a Product.');
+            $supported = [
+                Umkm::class,
+                Product::class,
+                UmkmRevision::class,
+                ProductRevision::class,
+                User::class,
+            ];
+
+            if ($verifiable === null || ! in_array($verifiable::class, $supported, true)) {
+                throw new LogicException('A verification request must target an UMKM, a Product, a change revision, or an owner account.');
             }
         });
     }

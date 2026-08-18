@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
     body {
         @apply bg-slate-50 font-sans text-slate-600 antialiased;
     }
@@ -42,3 +46,5 @@
         @apply transition-shadow duration-300 hover:shadow-lg;
     }
 }
+
+/* force rebuild 2026-08-16 18:52:31 */

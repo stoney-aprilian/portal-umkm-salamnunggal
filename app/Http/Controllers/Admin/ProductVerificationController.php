@@ -6,26 +6,73 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RejectVerificationRequest;
 use App\Http\Requests\Admin\RevisionVerificationRequest;
 use App\Models\Product;
+use App\Models\ProductRevision;
 use App\Models\VerificationRequest;
 use App\Support\VerificationActivity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
+/**
+ * Reviews both initial product submissions (verifiable = Product) and
+ * change submissions (verifiable = ProductRevision). Approving a change
+ * copies the revision onto the approved product without touching its
+ * ownership, then archives the revision so the verification history stays
+ * intact.
+ */
 class ProductVerificationController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $requests = VerificationRequest::query()
-            ->with(['verifiable.category', 'verifiable.umkm', 'user'])
-            ->where('verifiable_type', Product::class)
+        $search = $request->string('search')->trim()->toString();
+
+        $baseQuery = VerificationRequest::query()
+            ->whereIn('verifiable_type', [Product::class, ProductRevision::class]);
+
+        $pendingCount = (clone $baseQuery)->where('status', 'pending')->count();
+        $approvedCount = (clone $baseQuery)->where('status', 'approved')->count();
+        $rejectedCount = (clone $baseQuery)->where('status', 'rejected')->count();
+        $totalCount = (clone $baseQuery)->count();
+
+        $requests = $baseQuery
             ->where('status', 'pending')
+            ->with([
+                'verifiable.category',
+                'user',
+                'verifiable' => fn ($morph) => $morph->morphWith([
+                    Product::class => ['umkm', 'media'],
+                    ProductRevision::class => ['product.umkm', 'media'],
+                ]),
+            ])
             ->orderByDesc('created_at')
-            ->get();
+            ->get()
+            ->filter(function (VerificationRequest $vr) use ($search): bool {
+                if ($search === '') {
+                    return true;
+                }
+
+                $term = mb_strtolower($search);
+
+                $productName = $vr->verifiable->name ?? '';
+                $umkmName = match ($vr->verifiable_type) {
+                    ProductRevision::class => $vr->verifiable->product->umkm?->name ?? '',
+                    Product::class => $vr->verifiable->umkm?->name ?? '',
+                    default => '',
+                };
+
+                return str_contains(mb_strtolower($productName), $term)
+                    || str_contains(mb_strtolower($umkmName), $term);
+            });
 
         return view('admin.product-verification.index', [
             'requests' => $requests,
+            'pendingCount' => $pendingCount,
+            'approvedCount' => $approvedCount,
+            'rejectedCount' => $rejectedCount,
+            'totalCount' => $totalCount,
+            'search' => $search,
         ]);
     }
 
@@ -34,11 +81,14 @@ class ProductVerificationController extends Controller
         $this->authorize('review', $verificationRequest);
         $this->ensureProductRequest($verificationRequest);
 
-        $verificationRequest->load(['verifiable.category', 'verifiable.umkm', 'user']);
+        $verificationRequest->load(['verifiable.category', 'user']);
 
         return view('admin.product-verification.show', [
             'request' => $verificationRequest,
             'product' => $verificationRequest->verifiable,
+            'current' => $verificationRequest->verifiable instanceof ProductRevision
+                ? $verificationRequest->verifiable->load('media')->product
+                : null,
         ]);
     }
 
@@ -61,9 +111,15 @@ class ProductVerificationController extends Controller
                 return false;
             }
 
-            $verificationRequest->verifiable->update(['status' => 'approved']);
+            $verifiable = $verificationRequest->verifiable;
 
-            VerificationActivity::log('approved', $verificationRequest->verifiable, $request->user());
+            if ($verifiable instanceof ProductRevision) {
+                $this->applyChange($verifiable);
+            } else {
+                $verifiable->update(['status' => 'approved']);
+            }
+
+            VerificationActivity::log('approved', $verifiable, $request->user());
 
             return true;
         });
@@ -147,9 +203,44 @@ class ProductVerificationController extends Controller
             ->with('status', 'Pengajuan produk ditandai perlu revisi.');
     }
 
+    /**
+     * Copies the approved change onto the approved product, replaces the
+     * public photo, and archives the revision. Ownership never changes.
+     */
+    private function applyChange(ProductRevision $revision): void
+    {
+        $product = $revision->product;
+
+        $product->update([
+            'category_id' => $revision->category_id,
+            'name' => $revision->name,
+            'slug' => Product::generateUniqueSlug($revision->name, $product->id),
+            'description' => $revision->description,
+            'price' => $revision->price,
+        ]);
+
+        foreach ($revision->media as $media) {
+            $old = $product->media()->where('collection', 'product')->first();
+
+            if ($old !== null) {
+                Storage::disk($old->disk)->delete($old->path);
+                $old->delete();
+            }
+
+            $media->update([
+                'mediable_type' => Product::class,
+                'mediable_id' => $product->id,
+                'sort_order' => 0,
+            ]);
+        }
+
+        $revision->update(['status' => 'approved']);
+    }
+
     private function ensureProductRequest(VerificationRequest $verificationRequest): void
     {
-        if (! $verificationRequest->verifiable instanceof Product) {
+        if (! $verificationRequest->verifiable instanceof Product
+            && ! $verificationRequest->verifiable instanceof ProductRevision) {
             abort(404);
         }
     }

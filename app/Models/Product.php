@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 use LogicException;
@@ -66,5 +67,10 @@ class Product extends Model
     public function verificationRequests(): MorphMany
     {
         return $this->morphMany(VerificationRequest::class, 'verifiable');
+    }
+
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(ProductRevision::class);
     }
 }

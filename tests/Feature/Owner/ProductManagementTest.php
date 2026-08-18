@@ -791,4 +791,29 @@ class ProductManagementTest extends TestCase
             ->assertOk()
             ->assertSee('value="15000.5"', false);
     }
+
+    public function test_submit_records_activity_log_with_correct_causer_and_subject(): void
+    {
+        $owner = $this->owner();
+        $umkm = $this->approvedUmkmFor($owner);
+        $product = $this->productFor($owner, 'draft', $umkm);
+
+        $this->actingAs($owner)
+            ->post(route('owner.products.submit', $product))
+            ->assertRedirect(route('owner.products.index', $umkm));
+
+        $activity = \Spatie\Activitylog\Models\Activity::where('event', 'submitted')
+            ->where('subject_type', Product::class)
+            ->where('subject_id', $product->id)
+            ->firstOrFail();
+
+        $this->assertSame('submitted', $activity->event);
+        $this->assertSame($owner->id, $activity->causer_id);
+        $this->assertSame(User::class, $activity->causer_type);
+        $this->assertSame($product->id, $activity->subject_id);
+        $this->assertSame(Product::class, $activity->subject_type);
+        $this->assertStringContainsString('Kopi Arabika', $activity->description);
+        $this->assertStringNotContainsString('password', strtolower($activity->description));
+        $this->assertStringNotContainsString('password', strtolower(json_encode($activity->properties)));
+    }
 }

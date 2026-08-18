@@ -28,6 +28,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if (! in_array($request->user()->status, ['approved'], true)) {
+            return redirect()->route('account.verification.notice');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

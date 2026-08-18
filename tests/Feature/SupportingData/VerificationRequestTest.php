@@ -281,13 +281,29 @@ class VerificationRequestTest extends TestCase
         $this->assertDatabaseCount('verification_requests', 0);
     }
 
+    public function test_owner_account_is_a_supported_target(): void
+    {
+        $owner = User::factory()->create();
+
+        $request = $owner->verificationRequests()->create([
+            'user_id' => $owner->id,
+        ]);
+
+        $this->assertDatabaseHas('verification_requests', [
+            'id' => $request->id,
+            'user_id' => $owner->id,
+            'verifiable_type' => User::class,
+            'verifiable_id' => $owner->id,
+        ]);
+    }
+
     public function test_unsupported_target_is_rejected(): void
     {
         $this->assertThrows(
             fn () => VerificationRequest::create([
                 'user_id' => User::factory()->create()->id,
-                'verifiable_type' => User::class,
-                'verifiable_id' => User::factory()->create()->id,
+                'verifiable_type' => Category::class,
+                'verifiable_id' => $this->umkmCategory()->id,
             ]),
             LogicException::class,
         );

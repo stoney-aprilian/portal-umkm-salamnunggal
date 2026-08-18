@@ -1,7 +1,7 @@
 <x-app-layout :title="$category->name . ' — Produk'">
     <div class="py-12 sm:py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <a href="{{ route('public.product.index') }}" class="text-sm font-medium text-emerald-600 hover:underline">&larr; Kembali ke daftar Produk</a>
+            <a href="{{ route('public.product.index') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-[#5C4033] hover:text-[#C26A4A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
 
             <h1 class="mt-4 text-3xl font-semibold text-slate-900">Produk Kategori {{ $category->name }}</h1>
 

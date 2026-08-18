@@ -51,6 +51,14 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        if (Auth::user()->status === 'suspended') {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda sedang dinonaktifkan. Silakan hubungi Administrator.',
+            ]);
+        }
     }
 
     /**

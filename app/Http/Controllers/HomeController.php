@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\Umkm;
 use Illuminate\View\View;
 
@@ -70,6 +71,7 @@ class HomeController extends Controller
             'categories' => $categories,
             'featuredUmkms' => $featuredUmkms,
             'featuredProducts' => $featuredProducts,
+            'settings' => Setting::query()->pluck('value', 'key'),
         ]);
     }
 }

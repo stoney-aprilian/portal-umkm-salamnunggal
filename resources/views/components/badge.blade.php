@@ -9,7 +9,7 @@ $labels = [
     'rejected' => 'Ditolak',
 ];
 $styles = [
-    'draft' => 'bg-slate-100 text-slate-700',
+    'draft' => 'bg-[#F4EDE1] text-[#5C4033]',
     'pending' => 'bg-amber-100 text-amber-800',
     'approved' => 'bg-emerald-100 text-emerald-800',
     'needs_revision' => 'bg-orange-100 text-orange-800',

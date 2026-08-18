@@ -9,9 +9,7 @@ class ContactController extends Controller
 {
     public function index(): View
     {
-        $settings = Setting::query()
-            ->whereIn('key', ['site.name', 'contact.address', 'contact.phone', 'contact.email', 'contact.hours'])
-            ->pluck('value', 'key');
+        $settings = Setting::query()->pluck('value', 'key');
 
         return view('public.contact', ['settings' => $settings]);
     }

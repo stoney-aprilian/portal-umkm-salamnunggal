@@ -81,4 +81,9 @@ class Umkm extends Model
     {
         return $this->morphMany(VerificationRequest::class, 'verifiable');
     }
+
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(UmkmRevision::class);
+    }
 }

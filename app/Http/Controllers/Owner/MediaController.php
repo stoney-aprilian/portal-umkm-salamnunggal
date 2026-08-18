@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\StoreMediaRequest;
 use App\Models\Media;
 use App\Models\Product;
+use App\Models\ProductRevision;
 use App\Models\Umkm;
+use App\Models\UmkmRevision;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +62,42 @@ class MediaController extends Controller
             ->with('status', 'Foto produk berhasil diunggah.');
     }
 
+    public function storeUmkmRevisionMedia(StoreMediaRequest $request, UmkmRevision $revision, string $collection): RedirectResponse
+    {
+        abort_unless(in_array($collection, self::UMKM_COLLECTIONS, true), 404);
+
+        $this->authorize('update', $revision);
+
+        if ($redirect = $this->ensureRevisionRevising($revision)) {
+            return $redirect;
+        }
+
+        if ($collection === 'gallery') {
+            $this->storeGallery($revision, $request->file('gallery', []));
+        } else {
+            $this->replaceSingle($revision, $collection, $request->file($request->inputName()));
+        }
+
+        return redirect()->back()
+            ->with('status', 'Media perubahan berhasil diunggah. Media ini hanya tampil setelah perubahan disetujui.');
+    }
+
+    public function storeProductRevisionMedia(StoreMediaRequest $request, ProductRevision $revision, string $collection): RedirectResponse
+    {
+        abort_unless(in_array($collection, self::PRODUCT_COLLECTIONS, true), 404);
+
+        $this->authorize('update', $revision);
+
+        if ($redirect = $this->ensureRevisionRevising($revision)) {
+            return $redirect;
+        }
+
+        $this->replaceSingle($revision, $collection, $request->file($request->inputName()));
+
+        return redirect()->back()
+            ->with('status', 'Foto produk perubahan berhasil diunggah. Foto ini hanya tampil setelah perubahan disetujui.');
+    }
+
     public function destroy(Media $media): RedirectResponse
     {
         $this->authorize('delete', $media);
@@ -90,6 +128,10 @@ class MediaController extends Controller
             return $this->ensureProductMediaEditable($mediable);
         }
 
+        if ($mediable instanceof UmkmRevision || $mediable instanceof ProductRevision) {
+            return $this->ensureRevisionRevising($mediable);
+        }
+
         return null;
     }
 
@@ -97,7 +139,7 @@ class MediaController extends Controller
      * Stores the uploaded file first, then swaps the media record inside
      * a transaction. A failed upload never touches the existing media.
      */
-    private function replaceSingle(Umkm|Product $target, string $collection, UploadedFile $file): void
+    private function replaceSingle(Umkm|Product|UmkmRevision|ProductRevision $target, string $collection, UploadedFile $file): void
     {
         $path = $file->store($this->directoryFor($target, $collection), 'public');
 
@@ -123,17 +165,17 @@ class MediaController extends Controller
         }
     }
 
-    private function storeGallery(Umkm $umkm, array $files): void
+    private function storeGallery(Umkm|UmkmRevision $target, array $files): void
     {
-        $order = (int) $umkm->media()->where('collection', 'gallery')->max('sort_order');
+        $order = (int) $target->media()->where('collection', 'gallery')->max('sort_order');
 
         foreach ($files as $file) {
-            $path = $file->store('umkms/'.$umkm->id.'/gallery', 'public');
+            $path = $file->store($this->directoryFor($target, 'gallery'), 'public');
             $order++;
 
             try {
-                DB::transaction(function () use ($umkm, $path, $order) {
-                    $umkm->media()->create([
+                DB::transaction(function () use ($target, $path, $order) {
+                    $target->media()->create([
                         'disk' => 'public',
                         'path' => $path,
                         'collection' => 'gallery',
@@ -147,8 +189,16 @@ class MediaController extends Controller
         }
     }
 
-    private function directoryFor(Umkm|Product $target, string $collection): string
+    private function directoryFor(Umkm|Product|UmkmRevision|ProductRevision $target, string $collection): string
     {
+        if ($target instanceof UmkmRevision) {
+            return 'umkms/'.$target->umkm_id.'/revisions/'.$target->id;
+        }
+
+        if ($target instanceof ProductRevision) {
+            return 'products/'.$target->product_id.'/revisions/'.$target->id;
+        }
+
         if ($target instanceof Product) {
             return 'products/'.$target->id;
         }
@@ -176,6 +226,16 @@ class MediaController extends Controller
         if (! in_array($product->status, ['draft', 'needs_revision', 'rejected'], true)) {
             return redirect()->back()
                 ->with('error', 'Media produk hanya dapat dikelola ketika produk masih dapat diubah.');
+        }
+
+        return null;
+    }
+
+    private function ensureRevisionRevising(UmkmRevision|ProductRevision $revision): ?RedirectResponse
+    {
+        if (! in_array($revision->status, ['draft', 'needs_revision', 'rejected'], true)) {
+            return redirect()->back()
+                ->with('error', 'Media perubahan hanya dapat dikelola ketika perubahan masih dapat diubah.');
         }
 
         return null;

@@ -100,9 +100,20 @@ class SettingTest extends TestCase
     {
         $this->seed(SettingSeeder::class);
 
-        $this->assertDatabaseCount('settings', 5);
+        $this->assertDatabaseCount('settings', 10);
 
-        foreach (['site.name', 'contact.address', 'contact.phone', 'contact.email', 'contact.hours'] as $key) {
+        foreach ([
+            'site.name',
+            'site.tagline',
+            'site.description',
+            'site.hero_title',
+            'site.hero_description',
+            'contact.address',
+            'contact.phone',
+            'contact.whatsapp',
+            'contact.email',
+            'contact.hours',
+        ] as $key) {
             $this->assertDatabaseHas('settings', ['key' => $key]);
         }
     }
@@ -112,6 +123,6 @@ class SettingTest extends TestCase
         $this->seed(SettingSeeder::class);
         $this->seed(SettingSeeder::class);
 
-        $this->assertDatabaseCount('settings', 5);
+        $this->assertDatabaseCount('settings', 10);
     }
 }

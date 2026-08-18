@@ -41,7 +41,7 @@ class RegistrationRoleTest extends TestCase
             'role' => 'administrator',
         ]);
 
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('account.verification.notice', absolute: false));
 
         $user = User::where('email', 'role@example.com')->firstOrFail();
 
