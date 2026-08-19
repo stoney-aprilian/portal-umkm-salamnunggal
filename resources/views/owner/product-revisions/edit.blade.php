@@ -251,7 +251,7 @@
                             <div class="min-w-0">
                                 <h2 class="text-sm font-semibold text-[#3F2A22]">Kirim Pengajuan Perubahan</h2>
                                 <p class="mt-1 text-sm text-[#6F5D50]">Pastikan seluruh data dan foto sudah sesuai, lalu kirim pengajuan untuk diperiksa Administrator. Produk di publik tetap tidak berubah sampai perubahan disetujui.</p>
-                                <form method="POST" action="{{ route('owner.products.revisions.submit', $revision) }}" class="mt-4" onsubmit="return confirm('Yakin ingin mengirim pengajuan perubahan produk ini?');">
+                                <form method="POST" action="{{ route('owner.products.revisions.submit', $revision) }}" class="mt-4" onsubmit="event.preventDefault(); confirmAction(this, 'Kirim Perubahan Produk?', 'Perubahan produk akan dikirim untuk diperiksa Administrator.', 'success', 'Kirim Perubahan', 'Batal');">
                                     @csrf
                                     <x-owner-primary-button>{{ __('Kirim Pengajuan Perubahan') }}</x-primary-button>
                                 </form>

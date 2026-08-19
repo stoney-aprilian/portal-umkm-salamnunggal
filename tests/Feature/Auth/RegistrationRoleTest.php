@@ -18,6 +18,7 @@ class RegistrationRoleTest extends TestCase
         $this->post('/register', [
             'name' => 'Owner User',
             'email' => 'owner@example.com',
+            'phone' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
@@ -36,6 +37,7 @@ class RegistrationRoleTest extends TestCase
         $response = $this->post('/register', [
             'name' => 'Role User',
             'email' => 'role@example.com',
+            'phone' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
             'role' => 'administrator',

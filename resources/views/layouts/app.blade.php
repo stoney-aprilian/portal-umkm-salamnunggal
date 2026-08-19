@@ -39,6 +39,8 @@
             </main>
 
             @include('layouts.footer')
+
+            <x-confirm-modal />
         </div>
     </body>
 </html>

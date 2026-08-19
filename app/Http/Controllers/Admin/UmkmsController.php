@@ -231,4 +231,30 @@ class UmkmsController extends Controller
         return redirect()->route('admin.umkms.index')
             ->with('status', 'UMKM beserta produk dan medianya berhasil dihapus.');
     }
+
+    public function feature(Request $request, Umkm $umkm): RedirectResponse
+    {
+        $this->authorize('feature', $umkm);
+
+        abort_if($umkm->status !== 'approved', 403);
+
+        $umkm->update(['is_featured' => true]);
+
+        UmkmManagementActivity::log('umkm_featured', $umkm, $request->user());
+
+        return redirect()->route('admin.umkms.show', $umkm)
+            ->with('status', "UMKM {$umkm->name} berhasil ditetapkan sebagai unggulan.");
+    }
+
+    public function unfeature(Request $request, Umkm $umkm): RedirectResponse
+    {
+        $this->authorize('unfeature', $umkm);
+
+        $umkm->update(['is_featured' => false]);
+
+        UmkmManagementActivity::log('umkm_unfeatured', $umkm, $request->user());
+
+        return redirect()->route('admin.umkms.show', $umkm)
+            ->with('status', "UMKM {$umkm->name} berhasil dihapus dari daftar unggulan.");
+    }
 }

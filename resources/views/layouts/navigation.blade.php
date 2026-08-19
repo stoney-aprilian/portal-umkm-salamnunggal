@@ -1,4 +1,4 @@
-@php
+﻿@php
     $isPublicContext = ! Auth::user()?->hasRole('administrator')
         && (Auth::guest() || request()->routeIs('home') || request()->routeIs('public.*'));
 @endphp
@@ -527,7 +527,10 @@
                             </div>
                         </div>
 
-            <!-- Hamburger -->
+            </div>
+            </div>
+
+                <!-- Hamburger -->
                 <div class="-me-1 flex items-center lg:hidden">
                     <button @click="open = ! open" type="button" :aria-label="open ? 'Tutup menu' : 'Buka menu'" :aria-expanded="open ? 'true' : 'false'" aria-controls="admin-mobile-navigation" class="inline-flex items-center justify-center p-2.5 rounded-xl bg-[#5C4033] text-white transition-colors duration-150 hover:bg-[#F4EDE1] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2 transition duration-150 ease-in-out">
                         <svg class="h-5 w-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -536,11 +539,10 @@
                         </svg>
                     </button>
                 </div>
-            </div>
         </div>
 
         <!-- Responsive Navigation Menu -->
-        <div id="admin-mobile-navigation" :class="{'block': open, 'hidden': ! open}" class="hidden border-t border-slate-100 bg-white lg:hidden">
+        <div id="admin-mobile-navigation" x-show="open" x-cloak class="border-t border-slate-100 bg-white lg:hidden">
             <div class="container-page py-3">
                 <div class="space-y-1">
                     @if (Auth::user()?->hasRole('administrator'))
@@ -618,3 +620,4 @@
         @include('layouts.owner-navbar')
     @endif
 </nav>
+

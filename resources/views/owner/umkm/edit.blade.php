@@ -343,7 +343,7 @@
                                 @forelse ($gallery as $item)
                                     <div class="rounded-lg border border-[#ECE5D9] bg-white p-2">
                                         <img src="{{ Storage::disk($item->disk)->url($item->path) }}" alt="Galeri {{ $umkm->name }}" class="aspect-[4/3] w-full rounded object-cover">
-                                        <form method="POST" action="{{ route('owner.media.destroy', $item) }}" class="mt-2" onsubmit="return confirm('Hapus foto galeri ini?');">
+                                        <form method="POST" action="{{ route('owner.media.destroy', $item) }}" class="mt-2" onsubmit="event.preventDefault(); confirmAction(this, 'Hapus Foto Galeri?', 'Foto galeri ini akan dihapus permanen.', 'danger', 'Hapus', 'Batal');">
                                             @csrf
                                             @method('DELETE')
                                             <x-danger-button class="w-full justify-center">{{ __('Hapus') }}</x-danger-button>

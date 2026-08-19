@@ -102,6 +102,8 @@ Route::middleware(['auth', 'role:administrator'])
         Route::get('/umkms/{umkm}/edit', [UmkmsController::class, 'edit'])->name('umkms.edit');
         Route::put('/umkms/{umkm}', [UmkmsController::class, 'update'])->name('umkms.update');
         Route::delete('/umkms/{umkm}', [UmkmsController::class, 'destroy'])->name('umkms.destroy');
+        Route::post('/umkms/{umkm}/feature', [UmkmsController::class, 'feature'])->name('umkms.feature');
+        Route::post('/umkms/{umkm}/unfeature', [UmkmsController::class, 'unfeature'])->name('umkms.unfeature');
         Route::post('/umkms/{umkm}/media/{collection}', [AdminMediaController::class, 'store'])->name('umkms.media.store')->whereIn('collection', ['logo', 'banner', 'gallery']);
         Route::delete('/media/{media}', [AdminMediaController::class, 'destroy'])->name('media.destroy');
         Route::get('/products', [ProductsController::class, 'index'])->name('products.index');
@@ -111,6 +113,8 @@ Route::middleware(['auth', 'role:administrator'])
         Route::get('/products/{product}/edit', [ProductsController::class, 'edit'])->name('products.edit');
         Route::put('/products/{product}', [ProductsController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [ProductsController::class, 'destroy'])->name('products.destroy');
+        Route::post('/products/{product}/feature', [ProductsController::class, 'feature'])->name('products.feature');
+        Route::post('/products/{product}/unfeature', [ProductsController::class, 'unfeature'])->name('products.unfeature');
         Route::post('/products/{product}/media/{collection}', [AdminMediaController::class, 'storeProduct'])->name('products.media.store')->whereIn('collection', ['product']);
         Route::get('/users', [UsersController::class, 'index'])->name('users.index');
         Route::get('/users/create', [UsersController::class, 'create'])->name('users.create');

@@ -12,16 +12,16 @@
 
 <div class="mt-4">
     @if ($approveUrl)
-        <form method="POST" action="{{ $approveUrl }}" onsubmit="return confirm('Yakin ingin menyetujui {{ $subject }}?');">
+        <form id="approve-form" method="POST" action="{{ $approveUrl }}" onsubmit="event.preventDefault(); confirmAction(this, 'Setujui {{ $subject }}?', 'Pastikan Anda telah mengonfirmasi pendaftar melalui kontak yang tersedia. Setelah disetujui, akun akan memperoleh akses sebagai Owner.', 'success', 'Setujui', 'Batal');">
             @csrf
-            <x-primary-button class="w-full justify-center">{{ __('Setujui') }}</x-primary-button>
+            <x-primary-button type="submit" class="w-full justify-center">{{ __('Setujui') }}</x-primary-button>
         </form>
     @endif
 
     @if ($rejectUrl || $revisionUrl)
         <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             @if ($rejectUrl)
-                <form method="POST" action="{{ $rejectUrl }}" onsubmit="return confirm('Yakin ingin menolak {{ $subject }}?');">
+                <form id="reject-form" method="POST" action="{{ $rejectUrl }}" onsubmit="event.preventDefault(); confirmAction(this, 'Tolak Pendaftaran?', 'Pastikan Anda telah melakukan pemeriksaan terhadap data pendaftar.', 'danger', 'Tolak', 'Batal');">
                     @csrf
                     <label for="reject-notes" class="block text-sm font-medium text-slate-700">
                         {{ __('Alasan Penolakan') }}
@@ -33,19 +33,19 @@
                     @if ($rejectHasErrors)
                         <x-input-error :messages="$errors->reject->get('notes')" class="mt-2" />
                     @endif
-                    <x-danger-button class="mt-3 w-full justify-center">{{ __('Tolak') }}</x-danger-button>
+                    <x-danger-button type="submit" class="mt-3 w-full justify-center">{{ __('Tolak') }}</x-danger-button>
                 </form>
             @endif
 
             @if ($revisionUrl)
-                <form method="POST" action="{{ $revisionUrl }}" onsubmit="return confirm('Yakin ingin meminta revisi {{ $subject }}?');">
+                <form id="revision-form" method="POST" action="{{ $revisionUrl }}" onsubmit="event.preventDefault(); confirmAction(this, 'Minta Perbaikan?', 'Data pendaftar akan dikembalikan untuk diperbaiki.', 'warning', 'Minta Perbaikan', 'Batal');">
                     @csrf
                     <label for="revision-notes" class="block text-sm font-medium text-slate-700">
                         {{ __('Catatan Revisi') }}
                     </label>
                     <x-textarea id="revision-notes" name="notes" rows="3" class="mt-1 block w-full" required>{{ $revisionHasErrors ? old('notes') : '' }}</x-textarea>
                     <p class="mt-1 text-xs text-slate-500">
-                        Catatan ini akan ditampilkan kepada pemilik untuk perbaikan.
+                        Catatan ini akan ditampilkan kepada pemilik untuk perbaiki.
                     </p>
                     @if ($revisionHasErrors)
                         <x-input-error :messages="$errors->revision->get('notes')" class="mt-2" />

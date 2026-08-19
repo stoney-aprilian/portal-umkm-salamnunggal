@@ -53,6 +53,16 @@ class ProductPolicy
             && $product->umkm->user_id === $user->id;
     }
 
+    public function feature(User $user, Product $product): bool
+    {
+        return $user->hasRole('administrator');
+    }
+
+    public function unfeature(User $user, Product $product): bool
+    {
+        return $user->hasRole('administrator');
+    }
+
     public function submit(User $user, Product $product): bool
     {
         return $user->hasRole('owner')

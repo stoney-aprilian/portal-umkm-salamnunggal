@@ -51,6 +51,7 @@ class OwnerAccountVerificationTest extends TestCase
         $this->post('/register', [
             'name' => 'Owner Baru',
             'email' => 'baru@example.com',
+            'phone' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
         ])->assertRedirect(route('account.verification.notice'));
@@ -74,6 +75,7 @@ class OwnerAccountVerificationTest extends TestCase
         $this->post('/register', [
             'name' => 'Owner Logged',
             'email' => 'logged@example.com',
+            'phone' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
@@ -372,6 +374,7 @@ class OwnerAccountVerificationTest extends TestCase
         $this->post('/register', [
             'name' => 'Role User',
             'email' => 'role@example.com',
+            'phone' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
             'role' => 'administrator',

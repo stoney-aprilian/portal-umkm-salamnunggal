@@ -324,7 +324,7 @@
                                 @forelse ($gallery as $item)
                                     <div class="rounded-lg border border-[#ECE5D9] bg-white p-2">
                                         <img src="{{ Storage::disk($item->disk)->url($item->path) }}" alt="Galeri perubahan {{ $revision->name }}" class="aspect-[4/3] w-full rounded object-cover">
-                                        <form method="POST" action="{{ route('owner.media.destroy', $item) }}" class="mt-2" onsubmit="return confirm('Hapus foto galeri ini dari perubahan?');">
+                                        <form method="POST" action="{{ route('owner.media.destroy', $item) }}" class="mt-2" onsubmit="event.preventDefault(); confirmAction(this, 'Hapus Foto Galeri?', 'Foto galeri ini akan dihapus permanen dari perubahan.', 'danger', 'Hapus', 'Batal');">
                                             @csrf
                                             @method('DELETE')
                                             <x-danger-button class="w-full justify-center">{{ __('Hapus') }}</x-danger-button>
@@ -358,7 +358,7 @@
                                     Pastikan seluruh data dan media sudah sesuai, lalu kirim pengajuan untuk diperiksa Administrator.
                                 </p>
                             </div>
-                            <form method="POST" action="{{ route('owner.umkm.revisions.submit', $revision) }}" class="shrink-0" onsubmit="return confirm('Yakin ingin mengirim pengajuan perubahan UMKM ini?');">
+                            <form method="POST" action="{{ route('owner.umkm.revisions.submit', $revision) }}" class="shrink-0" onsubmit="event.preventDefault(); confirmAction(this, 'Kirim Perubahan UMKM?', 'Perubahan UMKM akan dikirim untuk diperiksa Administrator.', 'success', 'Kirim Perubahan', 'Batal');">
                                 @csrf
                                 <x-owner-primary-button>{{ __('Kirim Pengajuan Perubahan') }}</x-primary-button>
                             </form>

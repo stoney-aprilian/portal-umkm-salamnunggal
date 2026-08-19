@@ -18,9 +18,13 @@ use LogicException;
     'description',
     'price',
     'status',
+    'is_featured',
 ])]
 class Product extends Model
 {
+    protected $casts = [
+        'is_featured' => 'boolean',
+    ];
     public static function generateUniqueSlug(string $name, ?int $ignoreId = null): string
     {
         $base = Str::slug($name) ?: 'produk';

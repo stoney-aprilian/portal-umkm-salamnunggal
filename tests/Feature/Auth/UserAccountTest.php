@@ -27,7 +27,7 @@ class UserAccountTest extends TestCase
 
     public function test_phone_is_nullable(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['phone' => null]);
 
         $this->assertNull($user->fresh()->phone);
     }
@@ -92,6 +92,7 @@ class UserAccountTest extends TestCase
         $this->post('/register', [
             'name' => 'Budi',
             'email' => 'budi@example.com',
+            'phone' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
         ])->assertRedirect(route('account.verification.notice'));
@@ -99,7 +100,7 @@ class UserAccountTest extends TestCase
         $this->assertSame('pending', User::where('email', 'budi@example.com')->first()->status);
     }
 
-    public function test_registration_does_not_require_phone(): void
+    public function test_registration_requires_phone(): void
     {
         $this->seed(DatabaseSeeder::class);
 
@@ -108,12 +109,27 @@ class UserAccountTest extends TestCase
             'email' => 'siti@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+        ])->assertSessionHasErrors('phone');
+
+        $this->assertDatabaseMissing('users', ['email' => 'siti@example.com']);
+    }
+
+    public function test_registration_stores_valid_phone(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $this->post('/register', [
+            'name' => 'Siti',
+            'email' => 'siti@example.com',
+            'phone' => '081234567890',
+            'password' => 'password',
+            'password_confirmation' => 'password',
         ])->assertRedirect(route('account.verification.notice'));
 
         $user = User::where('email', 'siti@example.com')->first();
 
         $this->assertNotNull($user);
-        $this->assertNull($user->phone);
+        $this->assertSame('081234567890', $user->phone);
     }
 
     public function test_registration_ignores_submitted_status(): void
@@ -123,6 +139,7 @@ class UserAccountTest extends TestCase
         $this->post('/register', [
             'name' => 'Agus',
             'email' => 'agus@example.com',
+            'phone' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
             'status' => 'suspended',

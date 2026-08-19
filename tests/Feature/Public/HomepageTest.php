@@ -64,6 +64,7 @@ class HomepageTest extends TestCase
             'name' => $name,
             'slug' => $slug,
             'status' => $status,
+            'is_featured' => $status === 'approved',
         ]);
     }
 
@@ -84,6 +85,7 @@ class HomepageTest extends TestCase
             'description' => 'Kopi asli Gunung Papandayan.',
             'price' => 15000,
             'status' => $status,
+            'is_featured' => $status === 'approved',
         ]);
     }
 
@@ -251,6 +253,7 @@ class HomepageTest extends TestCase
     public function test_approved_umkm_appears_in_featured(): void
     {
         $umkm = $this->umkmFor('approved', 'Kedai Kopi Senja', 'kedai-kopi-senja');
+        $umkm->update(['is_featured' => true]);
 
         $this->get('/')
             ->assertSee('UMKM Unggulan')
@@ -283,6 +286,7 @@ class HomepageTest extends TestCase
     public function test_approved_product_under_approved_umkm_appears_in_featured(): void
     {
         $product = $this->productFor();
+        $product->update(['is_featured' => true]);
 
         $this->get('/')
             ->assertSee('Produk Unggulan')

@@ -28,6 +28,8 @@ class UmkmManagementActivity
             'umkm_created' => "UMKM {$umkm->name} dibuat oleh administrator atas nama pemilik",
             'umkm_updated' => "UMKM {$umkm->name} diperbarui oleh administrator",
             'umkm_deleted' => "UMKM {$umkm->name} dihapus oleh administrator",
+            'umkm_featured' => "UMKM {$umkm->name} ditetapkan sebagai unggulan",
+            'umkm_unfeatured' => "UMKM {$umkm->name} dihapus dari daftar unggulan",
             default => throw new InvalidArgumentException("Unsupported UMKM management activity event [{$event}]."),
         };
     }

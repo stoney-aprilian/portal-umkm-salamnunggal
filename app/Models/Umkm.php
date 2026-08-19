@@ -26,9 +26,13 @@ use LogicException;
     'tiktok',
     'operational_hours',
     'status',
+    'is_featured',
 ])]
 class Umkm extends Model
 {
+    protected $casts = [
+        'is_featured' => 'boolean',
+    ];
     public static function generateUniqueSlug(string $name, ?int $ignoreId = null): string
     {
         $base = Str::slug($name) ?: 'umkm';

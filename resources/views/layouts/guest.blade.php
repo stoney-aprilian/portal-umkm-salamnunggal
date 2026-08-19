@@ -182,5 +182,7 @@
                 </div>
             </div>
         @endif
+
+        <x-confirm-modal />
     </body>
 </html>

@@ -48,6 +48,7 @@ class HomeController extends Controller
                 'media' => fn ($query) => $query->where('collection', 'logo'),
             ])
             ->where('status', 'approved')
+            ->where('is_featured', true)
             ->latest()
             ->limit(self::FEATURED_LIMIT)
             ->get();
@@ -59,6 +60,7 @@ class HomeController extends Controller
                 'media' => fn ($query) => $query->where('collection', 'product'),
             ])
             ->where('status', 'approved')
+            ->where('is_featured', true)
             ->whereHas('umkm', fn ($query) => $query->where('status', 'approved'))
             ->latest()
             ->limit(self::FEATURED_LIMIT)

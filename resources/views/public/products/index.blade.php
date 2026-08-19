@@ -67,7 +67,7 @@
                         </svg>
                     </div>
                     <h2 class="mt-4 text-lg font-semibold tracking-tight text-[#3F2A22]">Produk tidak ditemukan</h2>
-                    <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#6F5D50]">Belum ada produk yang terdaftar saat ini. Silakan kembali lagi nanti.</p>
+                    <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#6F5D50]">Belum ada produk yang terdaftar.</p>
                     <a href="{{ route('public.umkm.index') }}" class="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-[#5C4033] px-5 text-sm font-semibold text-white transition duration-300 hover:bg-[#3F2A22] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
                         Lihat UMKM
                     </a>

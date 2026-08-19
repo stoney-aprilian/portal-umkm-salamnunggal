@@ -22,7 +22,7 @@
             @endif
 
             <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <a href="{{ route('admin.products.index') }}" class="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-[#8A7464] transition-colors duration-150 hover:text-[#5C4033]">
+                <a href="{{ route('admin.products.index') }}" class="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-[#8A7464] transition-colors duration-150 hover:text-[#5C4033] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
                     <span aria-hidden="true">&larr;</span>
                     Kembali ke Daftar Produk
                 </a>
@@ -42,9 +42,23 @@
                         'rejected' => 'bg-red-100 text-red-700',
                     ];
                 @endphp
-                <span class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusStyles[$product->status] ?? 'bg-slate-100 text-slate-700' }}">
-                    {{ $statusLabels[$product->status] ?? $product->status }}
-                </span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusStyles[$product->status] ?? 'bg-slate-100 text-slate-700' }}">
+                        {{ $statusLabels[$product->status] ?? $product->status }}
+                    </span>
+                    @if ($product->is_featured)
+                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            </svg>
+                            Unggulan
+                        </span>
+                    @endif
+                    <a href="{{ route('admin.products.edit', $product) }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition duration-300 hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
+                        Edit Produk
+                    </a>
+                </div>
+            </div>
             </div>
 
             @if ($product->status === 'approved' && $product->umkm?->status === 'approved')
@@ -54,6 +68,43 @@
                     </a>
                 </div>
             @endif
+
+            <div class="mt-6 rounded-2xl bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-5 py-4 sm:px-6 sm:py-5">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F4EDE1] text-[#C26A4A]" aria-hidden="true">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            </svg>
+                        </span>
+                        <div>
+                            <h2 class="text-base font-semibold text-slate-900">Status Unggulan</h2>
+                            <p class="mt-0.5 text-xs text-slate-500">Tentukan apakah produk ini ditampilkan di section produk unggulan di halaman depan.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5 sm:p-6">
+                    @if ($product->is_featured)
+                        <form method="POST" action="{{ route('admin.products.unfeature', $product) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Hapus dari Unggulan?', 'Produk {{ $product->name }} akan dihapus dari daftar unggulan dan tidak lagi ditampilkan di section produk unggulan homepage.', 'warning', 'Hapus dari Unggulan', 'Batal');">
+                            @csrf
+                            @method('POST')
+                            <p class="text-sm text-slate-600">Produk ini saat ini merupakan <strong>Produk Unggulan</strong> dan ditampilkan di section unggulan homepage.</p>
+                            <button type="submit" class="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition duration-300 hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
+                                Hapus dari Unggulan
+                            </button>
+                        </form>
+                    @else
+                        <form method="POST" action="{{ route('admin.products.feature', $product) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Jadikan Unggulan?', 'Produk {{ $product->name }} akan ditampilkan di section produk unggulan homepage.', 'success', 'Jadikan Unggulan', 'Batal');">
+                            @csrf
+                            @method('POST')
+                            <p class="text-sm text-slate-600">Produk ini bukan unggulan. Menetapkan sebagai unggulan akan menampilkannya di section produk unggulan homepage.</p>
+                            <button type="submit" class="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#C26A4A] px-5 text-sm font-semibold text-white transition duration-300 hover:bg-[#A8563A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
+                                Jadikan Unggulan
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
 
             <div class="mt-6 rounded-2xl bg-white shadow-sm">
                 <div class="border-b border-slate-100 px-5 py-4 sm:px-6 sm:py-5">
@@ -184,7 +235,7 @@
                     </div>
                 </div>
                 <div class="p-5 sm:p-6">
-                    <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('Yakin ingin menghapus produk {{ $product->name }}? Foto dan pengajuan verifikasi terkait juga akan dihapus permanen.');">
+                    <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Hapus Produk?', 'Produk {{ $product->name }} beserta foto dan pengajuan verifikasi terkait akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.', 'danger', 'Hapus Produk', 'Batal');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-red-600 px-5 text-sm font-semibold text-white transition duration-300 hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2">

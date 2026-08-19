@@ -46,7 +46,7 @@
                 </a>
             </div>
 
-            <form method="POST" action="{{ route('account.verification.submit') }}" onsubmit="return confirm('Yakin ingin mengajukan kembali akun Anda untuk verifikasi?');">
+            <form method="POST" action="{{ route('account.verification.submit') }}" onsubmit="event.preventDefault(); confirmAction(this, 'Ajukan Kembali Akun?', 'Akun Anda akan diajukan kembali untuk verifikasi Administrator.', 'success', 'Ajukan Kembali', 'Batal');">
                 @csrf
                 <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-emerald-700 transition duration-300 hover:border-emerald-300 hover:bg-emerald-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
                     Ajukan Kembali untuk Verifikasi

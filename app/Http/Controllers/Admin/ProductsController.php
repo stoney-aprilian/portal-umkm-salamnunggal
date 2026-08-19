@@ -207,4 +207,30 @@ class ProductsController extends Controller
         return redirect()->route('admin.products.index')
             ->with('status', 'Produk beserta foto dan pengajuan verifikasinya berhasil dihapus.');
     }
+
+    public function feature(Request $request, Product $product): RedirectResponse
+    {
+        $this->authorize('feature', $product);
+
+        abort_if($product->status !== 'approved' || $product->umkm->status !== 'approved', 403);
+
+        $product->update(['is_featured' => true]);
+
+        ProductManagementActivity::log('product_featured', $product, $request->user());
+
+        return redirect()->route('admin.products.show', $product)
+            ->with('status', "Produk {$product->name} berhasil ditetapkan sebagai unggulan.");
+    }
+
+    public function unfeature(Request $request, Product $product): RedirectResponse
+    {
+        $this->authorize('unfeature', $product);
+
+        $product->update(['is_featured' => false]);
+
+        ProductManagementActivity::log('product_unfeatured', $product, $request->user());
+
+        return redirect()->route('admin.products.show', $product)
+            ->with('status', "Produk {$product->name} berhasil dihapus dari daftar unggulan.");
+    }
 }

@@ -24,7 +24,7 @@
         <div class="mt-3">
             <img src="{{ Storage::disk($current->disk)->url($current->path) }}" alt="{{ $itemLabel }}" class="{{ $previewClass }} rounded-lg border border-slate-200 object-cover">
             @if ($deleteUrl)
-                <form method="POST" action="{{ $deleteUrl }}" class="mt-2" onsubmit="return confirm('Hapus {{ $itemLabel }} ini?');">
+                <form method="POST" action="{{ $deleteUrl }}" class="mt-2" onsubmit="event.preventDefault(); confirmAction(this, 'Hapus {{ $itemLabel }}?', '{{ $itemLabel }} akan dihapus permanen.', 'danger', 'Hapus', 'Batal');">
                     @csrf
                     @method('DELETE')
                     <x-danger-button class="w-full justify-center sm:w-auto">{{ __('Hapus') }}</x-danger-button>

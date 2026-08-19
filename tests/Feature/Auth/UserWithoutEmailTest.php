@@ -107,6 +107,7 @@ class UserWithoutEmailTest extends TestCase
 
         $this->post('/register', [
             'name' => 'Pendaftar Baru',
+            'phone' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
         ])->assertSessionHasErrors('email');

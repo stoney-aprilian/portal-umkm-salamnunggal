@@ -111,12 +111,13 @@
                 @if ($products->isNotEmpty())
                     <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
                         <div class="hidden grid-cols-12 gap-4 border-b border-slate-100 bg-slate-50/50 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:grid">
-                            <div class="col-span-5">Produk</div>
+                            <div class="col-span-4">Produk</div>
                             <div class="col-span-2">UMKM</div>
                             <div class="col-span-2">Kategori</div>
                             <div class="col-span-1">Harga</div>
                             <div class="col-span-1">Status</div>
-                            <div class="col-span-1 text-right">Aksi</div>
+                            <div class="col-span-1">Unggulan</div>
+                            <div class="col-span-1">Aksi</div>
                         </div>
                         <ul class="divide-y divide-slate-100">
                             @foreach ($products as $product)
@@ -138,23 +139,24 @@
                                     $photo = $product->media->firstWhere('collection', 'product');
                                 @endphp
                                 <li>
-                                    <a href="{{ route('admin.products.show', $product) }}" class="flex items-center gap-4 px-5 py-4 transition-colors duration-150 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-inset sm:grid sm:grid-cols-12 sm:items-center sm:gap-4">
-                                        <div class="hidden sm:col-span-5 sm:flex sm:items-center sm:gap-3">
-                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                                                @if ($photo)
-                                                    <img src="{{ Storage::disk($photo->disk)->url($photo->path) }}" alt="Foto {{ $product->name }}" class="h-full w-full object-cover">
-                                                @else
-                                                    <svg class="h-5 w-5 text-slate-300" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                                                        <circle cx="9" cy="9" r="2" />
-                                                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                                                    </svg>
-                                                @endif
-                                            </div>
-                                            <div class="min-w-0">
-                                                <p class="truncate text-sm font-semibold text-slate-900">{{ $product->name }}</p>
-                                                <p class="mt-0.5 text-xs text-slate-500 sm:hidden">{{ $product->umkm?->name ?? '—' }} &middot; {{ $product->category?->name ?? '—' }}</p>
-                                            </div>
+                                    <div class="flex items-center gap-4 px-5 py-4 transition-colors duration-150 hover:bg-slate-50 focus:outline-none sm:grid sm:grid-cols-12 sm:items-center sm:gap-4">
+                                        <div class="hidden sm:col-span-4 sm:flex sm:items-center sm:gap-3">
+                                            <a href="{{ route('admin.products.show', $product) }}" class="flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-inset">
+                                                <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                                                    @if ($photo)
+                                                        <img src="{{ Storage::disk($photo->disk)->url($photo->path) }}" alt="Foto {{ $product->name }}" class="h-full w-full object-cover">
+                                                    @else
+                                                        <svg class="h-5 w-5 text-slate-300" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                                                            <circle cx="9" cy="9" r="2" />
+                                                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                                                        </svg>
+                                                    @endif
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="truncate text-sm font-semibold text-slate-900">{{ $product->name }}</p>
+                                                </div>
+                                            </a>
                                         </div>
                                         <div class="hidden sm:col-span-2 sm:block">
                                             <p class="truncate text-sm text-slate-700">{{ $product->umkm?->name ?? '—' }}</p>
@@ -171,28 +173,52 @@
                                             </span>
                                         </div>
                                         <div class="hidden sm:col-span-1 sm:flex sm:justify-end">
-                                            <span class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-[#5C4033] transition duration-300 hover:border-[#C26A4A] hover:text-[#C26A4A]">
-                                                Kelola
-                                            </span>
+                                            @if ($product->is_featured)
+                                                <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                                                    <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                                    </svg>
+                                                    Unggulan
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">
+                                                    Biasa
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <div class="hidden sm:col-span-1 sm:flex sm:items-center sm:justify-end">
+                                            <a href="{{ route('admin.products.edit', $product) }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-[#5C4033] transition duration-300 hover:border-[#C26A4A] hover:text-[#C26A4A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
+                                                Edit
+                                            </a>
                                         </div>
                                         <div class="sm:hidden">
                                             <div class="flex items-center justify-between">
-                                                <div>
-                                                    <p class="text-sm font-semibold text-slate-900">{{ $product->name }}</p>
-                                                    <p class="mt-0.5 text-xs text-slate-500">{{ $product->umkm?->name ?? '—' }}</p>
-                                                    <p class="mt-0.5 text-xs text-slate-500">{{ $product->category?->name ?? '—' }} &middot; Rp {{ number_format((float) $product->price, 0, ',', '.') }}</p>
-                                                </div>
+                                                <a href="{{ route('admin.products.show', $product) }}" class="flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A]">
+                                                    <div>
+                                                        <p class="text-sm font-semibold text-slate-900">{{ $product->name }}</p>
+                                                        <p class="mt-0.5 text-xs text-slate-500">{{ $product->umkm?->name ?? '—' }}</p>
+                                                        <p class="mt-0.5 text-xs text-slate-500">{{ $product->category?->name ?? '—' }} &middot; Rp {{ number_format((float) $product->price, 0, ',', '.') }}</p>
+                                                    </div>
+                                                </a>
                                                 <div class="flex flex-col items-end gap-2">
                                                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusStyles[$product->status] ?? 'bg-slate-100 text-slate-700' }}">
                                                         {{ $statusLabels[$product->status] ?? $product->status }}
                                                     </span>
-                                                    <svg class="h-4 w-4 text-slate-400" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="m9 18 6-6-6-6" />
-                                                    </svg>
+                                                    @if ($product->is_featured)
+                                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                                                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                                            </svg>
+                                                            Unggulan
+                                                        </span>
+                                                    @endif
+                                                    <a href="{{ route('admin.products.edit', $product) }}" class="text-xs font-semibold text-[#C26A4A] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A]">
+                                                        Edit
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
-                                    </a>
+                                    </div>
                                 </li>
                             @endforeach
                         </ul>

@@ -51,4 +51,14 @@ class UmkmPolicy
     {
         return $user->hasRole('administrator');
     }
+
+    public function feature(User $user, Umkm $umkm): bool
+    {
+        return $user->hasRole('administrator');
+    }
+
+    public function unfeature(User $user, Umkm $umkm): bool
+    {
+        return $user->hasRole('administrator');
+    }
 }

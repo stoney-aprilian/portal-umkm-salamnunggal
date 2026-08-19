@@ -195,7 +195,7 @@
                                 </div>
                                 <div class="flex flex-wrap gap-2 sm:flex-col sm:items-end">
                                     @if ($umkm->status === 'draft')
-                                        <form method="POST" action="{{ route('owner.umkm.submit', $umkm) }}" onsubmit="return confirm('Yakin ingin mengirim pengajuan UMKM ini?');">
+                                        <form method="POST" action="{{ route('owner.umkm.submit', $umkm) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Kirim Pengajuan UMKM?', 'UMKM akan dikirim untuk diperiksa Administrator.', 'success', 'Kirim Pengajuan', 'Batal');">
                                             @csrf
                                             <x-primary-button>{{ __('Kirim Pengajuan') }}</x-primary-button>
                                         </form>
@@ -309,7 +309,7 @@
                                         </p>
                                         <div class="mt-4 flex flex-wrap gap-3">
                                             @if ($umkmRevision->status === 'draft')
-                                                <form method="POST" action="{{ route('owner.umkm.revisions.submit', $umkmRevision) }}" onsubmit="return confirm('Yakin ingin mengirim pengajuan perubahan UMKM ini?');">
+                                                <form method="POST" action="{{ route('owner.umkm.revisions.submit', $umkmRevision) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Kirim Perubahan UMKM?', 'Perubahan UMKM akan dikirim untuk diperiksa Administrator.', 'success', 'Kirim Perubahan', 'Batal');">
                                                     @csrf
                                                     <x-primary-button>{{ __('Kirim Perubahan') }}</x-primary-button>
                                                 </form>

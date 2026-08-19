@@ -35,6 +35,8 @@ class ProductManagementActivity
             'product_media_uploaded' => "Foto produk {$product->name} diunggah oleh administrator",
             'product_media_replaced' => "Foto produk {$product->name} diganti oleh administrator",
             'product_media_deleted' => "Foto produk {$product->name} dihapus oleh administrator",
+            'product_featured' => "Produk {$product->name} ditetapkan sebagai unggulan",
+            'product_unfeatured' => "Produk {$product->name} dihapus dari daftar unggulan",
             default => throw new InvalidArgumentException("Unsupported product management activity event [{$event}]."),
         };
     }

@@ -136,16 +136,16 @@
                 <div class="p-5 sm:p-6 space-y-6">
                     <div>
                         @if ($user->status === 'suspended')
-                            <form method="POST" action="{{ route('admin.users.activate', $user) }}" onsubmit="return confirm('Yakin ingin mengaktifkan kembali akun {{ $user->name }}?');">
+                            <form method="POST" action="{{ route('admin.users.activate', $user) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Aktifkan Akun?', 'Akun {{ $user->name }} akan diaktifkan kembali dan owner dapat masuk.', 'success', 'Aktifkan Kembali', 'Batal');">
                                 @csrf
                                 <button type="submit" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#C26A4A] px-5 text-sm font-semibold text-white transition duration-300 hover:bg-[#A8563A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
                                     Aktifkan Kembali
                                 </button>
                             </form>
                         @else
-                            <form method="POST" action="{{ route('admin.users.suspend', $user) }}" onsubmit="return confirm('Yakin ingin menonaktifkan akun {{ $user->name }}? Owner tidak akan dapat masuk sampai akun diaktifkan kembali.');">
+                            <form method="POST" action="{{ route('admin.users.suspend', $user) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Nonaktifkan Akun?', 'Akun {{ $user->name }} akan dinonaktifkan. Owner tidak akan dapat masuk sampai akun diaktifkan kembali.', 'danger', 'Nonaktifkan Akun', 'Batal');">
                                 @csrf
-                                <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-red-600 px-5 text-sm font-semibold text-white transition duration-300 hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2">
+                                <button type="submit" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-semibold text-white transition duration-300 hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2">
                                     Nonaktifkan Akun
                                 </button>
                             </form>

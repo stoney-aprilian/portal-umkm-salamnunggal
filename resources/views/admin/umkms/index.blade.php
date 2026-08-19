@@ -105,12 +105,13 @@
                 @if ($umkms->isNotEmpty())
                     <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
                         <div class="hidden grid-cols-12 gap-4 border-b border-slate-100 bg-slate-50/50 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:grid">
-                            <div class="col-span-5">UMKM</div>
+                            <div class="col-span-4">UMKM</div>
                             <div class="col-span-2">Pemilik</div>
                             <div class="col-span-2">Kategori</div>
                             <div class="col-span-1">Terdaftar</div>
                             <div class="col-span-1">Status</div>
-                            <div class="col-span-1 text-right">Aksi</div>
+                            <div class="col-span-1">Unggulan</div>
+                            <div class="col-span-1">Aksi</div>
                         </div>
                         <ul class="divide-y divide-slate-100">
                             @foreach ($umkms as $umkm)
@@ -132,19 +133,20 @@
                                     $logo = $umkm->media->firstWhere('collection', 'logo');
                                 @endphp
                                 <li>
-                                    <a href="{{ route('admin.umkms.show', $umkm) }}" class="flex items-center gap-4 px-5 py-4 transition-colors duration-150 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-inset sm:grid sm:grid-cols-12 sm:items-center sm:gap-4">
-                                        <div class="hidden sm:col-span-5 sm:flex sm:items-center sm:gap-3">
-                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                                                @if ($logo)
-                                                    <img src="{{ Storage::disk($logo->disk)->url($logo->path) }}" alt="Logo {{ $umkm->name }}" class="h-full w-full object-cover">
-                                                @else
-                                                    <span class="text-xs font-semibold text-slate-400">{{ substr($umkm->name, 0, 1) }}</span>
-                                                @endif
-                                            </div>
-                                            <div class="min-w-0">
-                                                <p class="truncate text-sm font-semibold text-slate-900">{{ $umkm->name }}</p>
-                                                <p class="mt-0.5 text-xs text-slate-500 sm:hidden">{{ $umkm->user?->name ?? '—' }} &middot; {{ $umkm->category?->name ?? '—' }}</p>
-                                            </div>
+                                    <div class="flex items-center gap-4 px-5 py-4 transition-colors duration-150 hover:bg-slate-50 focus:outline-none sm:grid sm:grid-cols-12 sm:items-center sm:gap-4">
+                                        <div class="hidden sm:col-span-4 sm:flex sm:items-center sm:gap-3">
+                                            <a href="{{ route('admin.umkms.show', $umkm) }}" class="flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-inset">
+                                                <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                                                    @if ($logo)
+                                                        <img src="{{ Storage::disk($logo->disk)->url($logo->path) }}" alt="Logo {{ $umkm->name }}" class="h-full w-full object-cover">
+                                                    @else
+                                                        <span class="text-xs font-semibold text-slate-400">{{ substr($umkm->name, 0, 1) }}</span>
+                                                    @endif
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="truncate text-sm font-semibold text-slate-900">{{ $umkm->name }}</p>
+                                                </div>
+                                            </a>
                                         </div>
                                         <div class="hidden sm:col-span-2 sm:block">
                                             <p class="truncate text-sm text-slate-700">{{ $umkm->user?->name ?? '—' }}</p>
@@ -161,28 +163,52 @@
                                             </span>
                                         </div>
                                         <div class="hidden sm:col-span-1 sm:flex sm:justify-end">
-                                            <span class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-[#5C4033] transition duration-300 hover:border-[#C26A4A] hover:text-[#C26A4A]">
-                                                Kelola
-                                            </span>
+                                            @if ($umkm->is_featured)
+                                                <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                                                    <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                                    </svg>
+                                                    Unggulan
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">
+                                                    Biasa
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <div class="hidden sm:col-span-1 sm:flex sm:items-center sm:justify-end">
+                                            <a href="{{ route('admin.umkms.edit', $umkm) }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-[#5C4033] transition duration-300 hover:border-[#C26A4A] hover:text-[#C26A4A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
+                                                Edit
+                                            </a>
                                         </div>
                                         <div class="sm:hidden">
                                             <div class="flex items-center justify-between">
-                                                <div>
-                                                    <p class="text-sm font-semibold text-slate-900">{{ $umkm->name }}</p>
-                                                    <p class="mt-0.5 text-xs text-slate-500">{{ $umkm->user?->name ?? '—' }}</p>
-                                                    <p class="mt-0.5 text-xs text-slate-500">{{ $umkm->category?->name ?? '—' }} &middot; {{ $umkm->created_at->format('d M Y') }}</p>
-                                                </div>
+                                                <a href="{{ route('admin.umkms.show', $umkm) }}" class="flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A]">
+                                                    <div>
+                                                        <p class="text-sm font-semibold text-slate-900">{{ $umkm->name }}</p>
+                                                        <p class="mt-0.5 text-xs text-slate-500">{{ $umkm->user?->name ?? '—' }}</p>
+                                                        <p class="mt-0.5 text-xs text-slate-500">{{ $umkm->category?->name ?? '—' }} &middot; {{ $umkm->created_at->format('d M Y') }}</p>
+                                                    </div>
+                                                </a>
                                                 <div class="flex flex-col items-end gap-2">
                                                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusStyles[$umkm->status] ?? 'bg-slate-100 text-slate-700' }}">
                                                         {{ $statusLabels[$umkm->status] ?? $umkm->status }}
                                                     </span>
-                                                    <svg class="h-4 w-4 text-slate-400" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="m9 18 6-6-6-6" />
-                                                    </svg>
+                                                    @if ($umkm->is_featured)
+                                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                                                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                                            </svg>
+                                                            Unggulan
+                                                        </span>
+                                                    @endif
+                                                    <a href="{{ route('admin.umkms.edit', $umkm) }}" class="text-xs font-semibold text-[#C26A4A] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A]">
+                                                        Edit
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
-                                    </a>
+                                    </div>
                                 </li>
                             @endforeach
                         </ul>

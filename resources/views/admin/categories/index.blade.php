@@ -98,7 +98,7 @@
                                             <a href="{{ route('admin.categories.edit', $category) }}" class="inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-[#5C4033] transition duration-300 hover:border-[#C26A4A] hover:text-[#C26A4A] sm:w-auto">
                                                 Kelola
                                             </a>
-                                            <form method="POST" action="{{ route('admin.categories.destroy', $category) }}" onsubmit="return confirm('Yakin ingin menghapus kategori {{ $category->name }}? Kategori yang masih digunakan tidak dapat dihapus.');">
+                                            <form method="POST" action="{{ route('admin.categories.destroy', $category) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Hapus Kategori?', 'Kategori {{ $category->name }} akan dihapus permanen. Kategori yang masih digunakan tidak dapat dihapus.', 'danger', 'Hapus Kategori', 'Batal');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-red-700 transition duration-300 hover:border-red-300 hover:bg-red-50 sm:w-auto">
@@ -136,7 +136,7 @@
                                             <a href="{{ route('admin.categories.edit', $category) }}" class="inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-[#5C4033] transition duration-300 hover:border-[#C26A4A] hover:text-[#C26A4A] sm:w-auto">
                                                 Kelola
                                             </a>
-                                            <form method="POST" action="{{ route('admin.categories.destroy', $category) }}" onsubmit="return confirm('Yakin ingin menghapus kategori {{ $category->name }}? Kategori yang masih digunakan tidak dapat dihapus.');">
+                                            <form method="POST" action="{{ route('admin.categories.destroy', $category) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Hapus Kategori?', 'Kategori {{ $category->name }} akan dihapus permanen. Kategori yang masih digunakan tidak dapat dihapus.', 'danger', 'Hapus Kategori', 'Batal');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-red-700 transition duration-300 hover:border-red-300 hover:bg-red-50 sm:w-auto">

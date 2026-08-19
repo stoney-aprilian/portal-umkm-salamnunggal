@@ -38,6 +38,14 @@
                     <x-input-error :messages="$errors->get('email')" class="text-xs text-[#C26A4A] mt-1" />
                 </div>
 
+                {{-- Phone --}}
+                <div>
+                    <x-input-label for="phone" :value="__('No. Telepon / WhatsApp')" />
+                    <x-text-input id="phone" class="block min-h-12 w-full rounded-xl border border-[#E3D9CB] bg-white px-4 py-2.5 text-base text-[#3F2A22] placeholder-[#A99A8C] shadow-sm focus:border-[#C26A4A] focus:ring-[#C26A4A] focus:ring-offset-2" type="tel" name="phone" :value="old('phone')" required autocomplete="tel" />
+                    <p class="mt-1 text-xs text-[#8A7464]">Digunakan Admin untuk mengonfirmasi pendaftaran Anda.</p>
+                    <x-input-error :messages="$errors->get('phone')" class="text-xs text-[#C26A4A] mt-1" />
+                </div>
+
                 {{-- Password --}}
                 <div>
                     <x-input-label for="password" :value="__('Kata Sandi')" />

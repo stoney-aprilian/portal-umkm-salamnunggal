@@ -140,14 +140,14 @@
                                             </a>
                                         @endif
                                         @if ($product->status === 'draft')
-                                            <form method="POST" action="{{ route('owner.products.submit', $product) }}" onsubmit="return confirm('Yakin ingin mengirim pengajuan produk ini?');">
+                                            <form method="POST" action="{{ route('owner.products.submit', $product) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Kirim Pengajuan Produk?', 'Produk {{ $product->name }} akan dikirim untuk diperiksa Administrator.', 'success', 'Kirim Pengajuan', 'Batal');">
                                                 @csrf
                                                 <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#5C4033] px-5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-[#3F2A22] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
                                                     {{ __('Kirim Pengajuan') }}
                                                 </button>
                                             </form>
                                         @elseif ($product->status === 'approved' && $revision !== null && $revision->status === 'draft')
-                                            <form method="POST" action="{{ route('owner.products.revisions.submit', $revision) }}" onsubmit="return confirm('Yakin ingin mengirim pengajuan perubahan produk ini?');">
+                                            <form method="POST" action="{{ route('owner.products.revisions.submit', $revision) }}" onsubmit="event.preventDefault(); confirmAction(this, 'Kirim Perubahan Produk?', 'Perubahan produk {{ $product->name }} akan dikirim untuk diperiksa Administrator.', 'success', 'Kirim Perubahan', 'Batal');">
                                                 @csrf
                                                 <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#5C4033] px-5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-[#3F2A22] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
                                                     {{ __('Kirim Perubahan') }}
