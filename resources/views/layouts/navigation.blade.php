@@ -471,7 +471,7 @@
 
                 {{-- Settings Dropdown (Admin) --}}
                 <div class="hidden lg:flex lg:items-center lg:gap-3">
-                    <a href="{{ route('public.umkm.index') }}" class="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-[#ECE5D9] px-3.5 text-sm font-medium text-[#5C4033] transition-colors duration-150 hover:bg-[#F4EDE1] hover:text-[#3F2A22] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
+                    <a href="{{ route('home') }}" class="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-[#ECE5D9] px-3.5 text-sm font-medium text-[#5C4033] transition-colors duration-150 hover:bg-[#F4EDE1] hover:text-[#3F2A22] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26A4A] focus-visible:ring-offset-2">
                         <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                             <polyline points="15 3 21 3 21 9" />
@@ -573,7 +573,7 @@
                         <x-responsive-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')">
                             {{ __('Pengaturan Portal') }}
                         </x-responsive-nav-link>
-                        <x-responsive-nav-link :href="route('public.umkm.index')" :active="request()->routeIs('public.*')">
+                        <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
                             {{ __('Lihat Portal') }}
                         </x-responsive-nav-link>
                     @endif
