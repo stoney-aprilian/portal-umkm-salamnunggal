@@ -223,9 +223,9 @@ class UmkmsController extends Controller
             }
 
             $umkm->verificationRequests()->delete();
-            $umkm->delete();
 
             UmkmManagementActivity::log('umkm_deleted', $umkm, $request->user());
+            $umkm->delete();
         });
 
         return redirect()->route('admin.umkms.index')

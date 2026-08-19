@@ -199,9 +199,9 @@ class ProductsController extends Controller
             }
 
             $product->verificationRequests()->delete();
-            $product->delete();
 
             ProductManagementActivity::log('product_deleted', $product, $request->user());
+            $product->delete();
         });
 
         return redirect()->route('admin.products.index')
