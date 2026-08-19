@@ -505,7 +505,7 @@
                                     </svg>
                                     Profil Saya
                                 </a>
-                                <a href="{{ route('password.update') }}" class="flex items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium text-[#5F524A] transition-colors duration-150 hover:bg-[#FAF6F5] hover:text-[#C26A4A]">
+                                <a href="{{ route('profile.edit') }}" class="flex items-center gap-2.5 rounded-full px-3 py-2 text-sm font-medium text-[#5F524A] transition-colors duration-150 hover:bg-[#FAF6F5] hover:text-[#C26A4A]">
                                     <svg class="h-4 w-4 text-[#8A7464]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
                                         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
